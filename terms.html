@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Genji Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f3f6;
+}
+
+header {
+  background: #131921;
+  color: #fff;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h2 {
+  margin: 0;
+  color: #ff9900;
+}
+
+.products {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.price {
+  color: #b12704;
+  font-weight: bold;
+}
+.preview {
+  background: #fff3cd;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #856404;
+}
+</style>
+</head>
+
+<body>
+
+<div id="previewBanner" class="preview" style="display:none;">
+  Preview mode – Seller view only
+</div>
+
+<header>
+  <h2>Genji Store</h2>
+</header>
+
+<div class="products" id="productList"></div>
+
+<script>
+/* FIREBASE INIT */
+firebase.initializeApp({
+  apiKey: "AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+  authDomain: "genji-store.firebaseapp.com",
+  projectId: "genji-store"
+});
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* PREVIEW MODE */
+const params = new URLSearchParams(window.location.search);
+const isPreview = params.get("preview") === "true";
+
+/* AUTH CHECK */
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    location.replace("login.html");
+    return;
+  }
+
+  const doc = await db.collection("users").doc(user.uid).get();
+  if (!doc.exists || doc.data().blocked) {
+    auth.signOut();
+    location.replace("login.html");
+    return;
+  }
+
+  // 🚨 FIXED LOOP HERE
+  if (doc.data().role === "seller" && !isPreview) {
+    location.replace("seller.html");
+    return;
+  }
+
+  if (isPreview) {
+    document.getElementById("previewBanner").style.display = "block";
+  }
+
+  loadProducts();
+});
+
+/* LOAD PRODUCTS */
+function loadProducts() {
+  db.collection("products")
+    .where("status", "==", "available")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      productList.innerHTML = "";
+
+      if (snapshot.empty) {
+        productList.innerHTML = "<p>No products available.</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <img src="${p.image}">
+          <h3>${p.name}</h3>
+          <div class="price">₹${p.price}</div>
+          <p>${p.category}</p>
+          <p>📍 ${p.village}, ${p.district}, ${p.state}</p>
+          ${isPreview ? "" : `
+            <a href="https://wa.me/91${p.contact}" target="_blank">
+              <button>Contact Seller</button>
+            </a>
+          `}
+        `;
+
+        productList.appendChild(card);
+      });
+    });
+}
+</script>
+
+</body>
+</html>

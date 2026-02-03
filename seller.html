@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seller Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#f1f3f6}
+header{
+  background:linear-gradient(90deg,#131921,#1f2933);
+  color:#fff;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+}
+header h2{margin:0;color:#ff9900}
+header button{
+  background:#ffd814;
+  border:none;
+  padding:8px 12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.container{padding:15px}
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);
+  margin-bottom:20px;
+}
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+}
+.primary{background:#ff9900;border:none;font-weight:bold}
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:15px;
+}
+.product{
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:6px;
+  overflow:hidden;
+}
+.product img{width:100%;height:150px;object-fit:cover}
+.product-body{padding:10px}
+.price{color:#b12704;font-weight:bold}
+.comment{
+  background:#f1f3f6;
+  padding:6px;
+  border-radius:4px;
+  margin-top:4px;
+  font-size:13px;
+}
+#successMsg{
+  display:none;
+  background:#d4edda;
+  color:#155724;
+  padding:10px;
+  border-radius:6px;
+  margin-bottom:15px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>📦 Seller Dashboard</h2>
+  <div>
+    <button onclick="location.href='index.html'">🛍️ View Store</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+
+<div id="successMsg"></div>
+
+<!-- ADD / EDIT -->
+<div class="card">
+  <h3>Add / Edit Product</h3>
+
+  <input id="pname" placeholder="Product name">
+  <input id="pprice" type="number" placeholder="Price">
+
+  <select id="pcategory">
+    <option>Phones</option>
+    <option>Clothes</option>
+    <option>Electronics</option>
+    <option>Furniture</option>
+    <option>Bike</option>
+    <option>Car</option>
+  </select>
+
+  <input id="pimage" placeholder="Image URL">
+  <input id="pcontact" placeholder="WhatsApp number">
+  <input id="pvillage" placeholder="Village">
+  <input id="pdistrict" placeholder="District">
+  <input id="pstate" placeholder="State">
+
+  <button class="primary" onclick="submitProduct()" id="submitBtn">
+    Save Product
+  </button>
+</div>
+
+<!-- MY PRODUCTS -->
+<div class="card">
+  <h3>My Products & Comments</h3>
+  <div class="products" id="myProducts"></div>
+</div>
+
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+  authDomain:"genji-store.firebaseapp.com",
+  projectId:"genji-store"
+});
+
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+let uid=null;
+let editingId=null;
+
+/* SELLER ONLY */
+auth.onAuthStateChanged(async user=>{
+  if(!user){location.replace("login.html");return;}
+  const doc=await db.collection("users").doc(user.uid).get();
+  if(!doc.exists || doc.data().role!=="seller"){
+    auth.signOut();location.replace("login.html");return;
+  }
+  uid=user.uid;
+  loadMyProducts();
+});
+
+/* SUCCESS */
+function showSuccess(msg){
+  successMsg.innerText="✅ "+msg;
+  successMsg.style.display="block";
+  setTimeout(()=>successMsg.style.display="none",2500);
+}
+
+/* ADD / UPDATE */
+function submitProduct(){
+  const data={
+    name:pname.value,
+    price:Number(pprice.value),
+    category:pcategory.value,
+    image:pimage.value,
+    contact:pcontact.value,
+    village:pvillage.value,
+    district:pdistrict.value,
+    state:pstate.value,
+    sellerId:uid,
+    status:"available"
+  };
+
+  if(!data.name||!data.price||!data.image||!data.contact){
+    alert("Fill all fields");return;
+  }
+
+  if(editingId){
+    db.collection("products").doc(editingId).update(data).then(()=>{
+      showSuccess("Product updated");
+      editingId=null;
+      submitBtn.innerText="Save Product";
+      clearForm();
+    });
+  }else{
+    db.collection("products").add({
+      ...data,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=>{
+      showSuccess("Product uploaded");
+      clearForm();
+    });
+  }
+}
+
+/* LOAD PRODUCTS */
+function loadMyProducts(){
+  db.collection("products")
+    .where("sellerId","==",uid)
+    .onSnapshot(snapshot=>{
+      myProducts.innerHTML="";
+      snapshot.forEach(doc=>{
+        const p=doc.data();
+
+        const div=document.createElement("div");
+        div.className="product";
+
+        div.innerHTML=`
+          <img src="${p.image}">
+          <div class="product-body">
+            <h4>${p.name}</h4>
+            <div class="price">₹${p.price}</div>
+            <p>${p.category}</p>
+
+            <button onclick='editProduct("${doc.id}", ${JSON.stringify(p)})'>
+              ✏️ Edit
+            </button>
+            <button onclick="deleteProduct('${doc.id}')">
+              🗑️ Delete
+            </button>
+
+            <div id="comments_${doc.id}"></div>
+          </div>
+        `;
+        myProducts.appendChild(div);
+        loadComments(doc.id);
+      });
+    });
+}
+
+/* EDIT */
+function editProduct(id,p){
+  editingId=id;
+  pname.value=p.name;
+  pprice.value=p.price;
+  pcategory.value=p.category;
+  pimage.value=p.image;
+  pcontact.value=p.contact;
+  pvillage.value=p.village;
+  pdistrict.value=p.district;
+  pstate.value=p.state;
+  submitBtn.innerText="Update Product";
+}
+
+/* DELETE */
+function deleteProduct(id){
+  if(!confirm("Delete this product?"))return;
+  db.collection("products").doc(id).delete().then(()=>{
+    showSuccess("Product deleted");
+  });
+}
+
+/* COMMENTS */
+function loadComments(pid){
+  db.collection("products").doc(pid)
+    .collection("comments")
+    .orderBy("createdAt","desc")
+    .limit(5)
+    .onSnapshot(snapshot=>{
+      const box=document.getElementById("comments_"+pid);
+      box.innerHTML="<b>Buyer Questions:</b>";
+      snapshot.forEach(doc=>{
+        box.innerHTML+=`<div class="comment">💬 ${doc.data().text}</div>`;
+      });
+    });
+}
+
+function clearForm(){
+  pname.value=pprice.value=pimage.value=pcontact.value=pvillage.value=pdistrict.value=pstate.value="";
+}
+
+/* LOGOUT */
+function logout(){
+  auth.signOut().then(()=>location.replace("login.html"));
+}
+</script>
+
+</body>
+</html>
