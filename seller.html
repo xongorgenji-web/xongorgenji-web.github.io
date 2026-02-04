@@ -5,69 +5,139 @@
 <title>Seller Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f1f3f6}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(180deg,#f4f6f9,#eef1f5);
+}
+
+/* HEADER */
 header{
-  background:linear-gradient(90deg,#131921,#1f2933);
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
-  padding:14px;
+  padding:18px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
 }
-header h2{margin:0;color:#ff9900}
+header h2{margin:0;color:#ffb703}
 header button{
-  background:#ffd814;
+  background:#ffb703;
   border:none;
-  padding:8px 12px;
+  padding:10px 16px;
+  font-weight:bold;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+/* LAYOUT */
+.container{padding:16px}
+.card{
+  background:#fff;
+  padding:18px;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  margin-bottom:20px;
+}
+
+/* FORM */
+input,select{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  background:#fafafa;
+}
+input:focus,select:focus{
+  outline:none;
+  border-color:#ff9900;
+  box-shadow:0 0 0 2px rgba(255,153,0,.25);
+}
+
+.primary{
+  margin-top:14px;
+  padding:14px;
+  font-size:16px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(135deg,#ff9900,#ffb703);
   font-weight:bold;
   cursor:pointer;
 }
-.container{padding:15px}
-.card{
-  background:#fff;
-  padding:15px;
-  border-radius:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,.15);
-  margin-bottom:20px;
+
+/* IMAGE UPLOAD */
+.upload-box{
+  margin-top:12px;
+  padding:14px;
+  border:2px dashed #ccc;
+  border-radius:14px;
+  text-align:center;
+  cursor:pointer;
+  background:#fafafa;
 }
-input,select,button{
+.upload-box input{display:none}
+.preview{
+  margin-top:10px;
   width:100%;
-  padding:10px;
-  margin-top:8px;
+  height:180px;
+  object-fit:cover;
+  border-radius:14px;
+  display:none;
 }
-.primary{background:#ff9900;border:none;font-weight:bold}
+
+/* STATUS */
+.status{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  display:none;
+}
+.success{background:#d4edda;color:#155724}
+.loading{background:#fff3cd;color:#856404}
+
+/* PRODUCTS */
 .products{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:15px;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
 }
 .product{
-  background:#fafafa;
-  border:1px solid #ddd;
-  border-radius:6px;
+  background:#fff;
+  border-radius:18px;
   overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
-.product img{width:100%;height:150px;object-fit:cover}
-.product-body{padding:10px}
-.price{color:#b12704;font-weight:bold}
+.product img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+.product-body{padding:12px}
+.price{color:#b12704;font-weight:bold;font-size:18px}
+.product-body button{
+  width:100%;
+  margin-top:6px;
+  padding:10px;
+  border-radius:12px;
+  border:none;
+  font-weight:bold;
+  background:#f1f3f6;
+  cursor:pointer;
+}
 .comment{
   background:#f1f3f6;
-  padding:6px;
-  border-radius:4px;
+  padding:8px;
+  border-radius:10px;
   margin-top:4px;
   font-size:13px;
-}
-#successMsg{
-  display:none;
-  background:#d4edda;
-  color:#155724;
-  padding:10px;
-  border-radius:6px;
-  margin-bottom:15px;
 }
 </style>
 </head>
@@ -84,39 +154,42 @@ input,select,button{
 
 <div class="container">
 
-<div id="successMsg"></div>
-
-<!-- ADD / EDIT -->
+<!-- ADD PRODUCT -->
 <div class="card">
-  <h3>Add / Edit Product</h3>
+<h3>Add / Edit Product</h3>
 
-  <input id="pname" placeholder="Product name">
-  <input id="pprice" type="number" placeholder="Price">
+<input id="pname" placeholder="Product name">
+<input id="pprice" type="number" placeholder="Price">
 
-  <select id="pcategory">
-    <option>Phones</option>
-    <option>Clothes</option>
-    <option>Electronics</option>
-    <option>Furniture</option>
-    <option>Bike</option>
-    <option>Car</option>
-  </select>
+<select id="pcategory">
+  <option>Phones</option>
+  <option>Clothes</option>
+  <option>Electronics</option>
+  <option>Furniture</option>
+  <option>Bike</option>
+  <option>Car</option>
+</select>
 
-  <input id="pimage" placeholder="Image URL">
-  <input id="pcontact" placeholder="WhatsApp number">
-  <input id="pvillage" placeholder="Village">
-  <input id="pdistrict" placeholder="District">
-  <input id="pstate" placeholder="State">
+<label class="upload-box">
+  📷 Upload product image
+  <input type="file" id="pimage" accept="image/*">
+</label>
+<img id="preview" class="preview">
 
-  <button class="primary" onclick="submitProduct()" id="submitBtn">
-    Save Product
-  </button>
+<div id="uploadStatus" class="status"></div>
+
+<input id="pcontact" placeholder="WhatsApp number">
+<input id="pvillage" placeholder="Village">
+<input id="pdistrict" placeholder="District">
+<input id="pstate" placeholder="State">
+
+<button class="primary" onclick="submitProduct()">Save Product</button>
 </div>
 
 <!-- MY PRODUCTS -->
 <div class="card">
-  <h3>My Products & Comments</h3>
-  <div class="products" id="myProducts"></div>
+<h3>My Products</h3>
+<div class="products" id="myProducts"></div>
 </div>
 
 </div>
@@ -125,147 +198,87 @@ input,select,button{
 firebase.initializeApp({
   apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
   authDomain:"genji-store.firebaseapp.com",
-  projectId:"genji-store"
+  projectId:"genji-store",
+  storageBucket:"genji-store.appspot.com"
 });
 
 const auth=firebase.auth();
 const db=firebase.firestore();
+const storage=firebase.storage();
 
 let uid=null;
-let editingId=null;
+let imageURL="";
 
-/* SELLER ONLY */
+/* AUTH */
 auth.onAuthStateChanged(async user=>{
   if(!user){location.replace("login.html");return;}
-  const doc=await db.collection("users").doc(user.uid).get();
-  if(!doc.exists || doc.data().role!=="seller"){
-    auth.signOut();location.replace("login.html");return;
-  }
   uid=user.uid;
-  loadMyProducts();
+  loadProducts();
 });
 
-/* SUCCESS */
-function showSuccess(msg){
-  successMsg.innerText="✅ "+msg;
-  successMsg.style.display="block";
-  setTimeout(()=>successMsg.style.display="none",2500);
-}
+/* IMAGE UPLOAD */
+pimage.onchange=()=>{
+  const file=pimage.files[0];
+  if(!file){alert("Select image");return;}
 
-/* ADD / UPDATE */
+  uploadStatus.className="status loading";
+  uploadStatus.innerText="Uploading image...";
+  uploadStatus.style.display="block";
+
+  const ref=storage.ref("products/"+Date.now()+"_"+file.name);
+  ref.put(file).then(async snap=>{
+    imageURL=await snap.ref.getDownloadURL();
+    preview.src=imageURL;
+    preview.style.display="block";
+    uploadStatus.className="status success";
+    uploadStatus.innerText="✅ Image uploaded successfully";
+  });
+};
+
+/* SAVE PRODUCT */
 function submitProduct(){
-  const data={
+  if(!pname.value||!pprice.value||!imageURL){
+    alert("Fill all fields & upload image");return;
+  }
+
+  db.collection("products").add({
     name:pname.value,
     price:Number(pprice.value),
     category:pcategory.value,
-    image:pimage.value,
+    image:imageURL,
     contact:pcontact.value,
     village:pvillage.value,
     district:pdistrict.value,
     state:pstate.value,
     sellerId:uid,
-    status:"available"
-  };
-
-  if(!data.name||!data.price||!data.image||!data.contact){
-    alert("Fill all fields");return;
-  }
-
-  if(editingId){
-    db.collection("products").doc(editingId).update(data).then(()=>{
-      showSuccess("Product updated");
-      editingId=null;
-      submitBtn.innerText="Save Product";
-      clearForm();
-    });
-  }else{
-    db.collection("products").add({
-      ...data,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).then(()=>{
-      showSuccess("Product uploaded");
-      clearForm();
-    });
-  }
-}
-
-/* LOAD PRODUCTS */
-function loadMyProducts(){
-  db.collection("products")
-    .where("sellerId","==",uid)
-    .onSnapshot(snapshot=>{
-      myProducts.innerHTML="";
-      snapshot.forEach(doc=>{
-        const p=doc.data();
-
-        const div=document.createElement("div");
-        div.className="product";
-
-        div.innerHTML=`
-          <img src="${p.image}">
-          <div class="product-body">
-            <h4>${p.name}</h4>
-            <div class="price">₹${p.price}</div>
-            <p>${p.category}</p>
-
-            <button onclick='editProduct("${doc.id}", ${JSON.stringify(p)})'>
-              ✏️ Edit
-            </button>
-            <button onclick="deleteProduct('${doc.id}')">
-              🗑️ Delete
-            </button>
-
-            <div id="comments_${doc.id}"></div>
-          </div>
-        `;
-        myProducts.appendChild(div);
-        loadComments(doc.id);
-      });
-    });
-}
-
-/* EDIT */
-function editProduct(id,p){
-  editingId=id;
-  pname.value=p.name;
-  pprice.value=p.price;
-  pcategory.value=p.category;
-  pimage.value=p.image;
-  pcontact.value=p.contact;
-  pvillage.value=p.village;
-  pdistrict.value=p.district;
-  pstate.value=p.state;
-  submitBtn.innerText="Update Product";
-}
-
-/* DELETE */
-function deleteProduct(id){
-  if(!confirm("Delete this product?"))return;
-  db.collection("products").doc(id).delete().then(()=>{
-    showSuccess("Product deleted");
+    status:"available",
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(()=>{
+    alert("Product saved");
+    location.reload();
   });
 }
 
-/* COMMENTS */
-function loadComments(pid){
-  db.collection("products").doc(pid)
-    .collection("comments")
-    .orderBy("createdAt","desc")
-    .limit(5)
-    .onSnapshot(snapshot=>{
-      const box=document.getElementById("comments_"+pid);
-      box.innerHTML="<b>Buyer Questions:</b>";
-      snapshot.forEach(doc=>{
-        box.innerHTML+=`<div class="comment">💬 ${doc.data().text}</div>`;
-      });
+/* LOAD */
+function loadProducts(){
+  db.collection("products").where("sellerId","==",uid)
+  .onSnapshot(snap=>{
+    myProducts.innerHTML="";
+    snap.forEach(doc=>{
+      const p=doc.data();
+      myProducts.innerHTML+=`
+      <div class="product">
+        <img src="${p.image}">
+        <div class="product-body">
+          <h4>${p.name}</h4>
+          <div class="price">₹${p.price}</div>
+          <p>${p.category}</p>
+        </div>
+      </div>`;
     });
+  });
 }
 
-function clearForm(){
-  pname.value=pprice.value=pimage.value=pcontact.value=pvillage.value=pdistrict.value=pstate.value="";
-}
-
-/* LOGOUT */
 function logout(){
   auth.signOut().then(()=>location.replace("login.html"));
 }
