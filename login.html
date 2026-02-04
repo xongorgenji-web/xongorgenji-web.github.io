@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Login – Reselling & Buying Products</title>
+<title>Login – Reselling & Buying</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Firebase -->
@@ -11,134 +11,131 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
+/* ===== BASE ===== */
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#f1f3f6;
   min-height:100vh;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   display:flex;
   justify-content:center;
   align-items:center;
 }
 
-.container{
+/* CARD */
+.login-card{
   width:100%;
   max-width:380px;
-  padding:20px;
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
 
+/* BRAND */
 .brand{
   text-align:center;
   margin-bottom:20px;
 }
-
-/* 🌀 GENJIXONGOR LOGO */
 .brand .logo{
-  font-size:12px;
+  font-size:14px;
   letter-spacing:2px;
+  color:#ffb703;
   font-weight:bold;
-  color:#ff9900;
-  margin-bottom:6px;
-  display:block;
 }
-
 .brand h1{
-  margin:0;
+  margin:6px 0 0;
   font-size:26px;
-  color:#131921;
 }
-
 .brand p{
-  margin-top:8px;
+  margin-top:6px;
   font-size:14px;
   color:#555;
 }
 
-.login-box{
-  background:#fff;
-  padding:25px;
-  border-radius:8px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.15);
-}
-
-.role-select{
+/* ROLE */
+.roles{
   display:flex;
-  gap:10px;
-  margin-bottom:15px;
+  gap:12px;
+  margin:16px 0;
 }
-
-.role-select button{
+.roles button{
   flex:1;
-  padding:10px;
+  padding:12px;
+  border-radius:14px;
+  border:2px solid #ddd;
+  background:#fafafa;
   font-weight:bold;
-  border:2px solid #ccc;
-  background:#f8f8f8;
   cursor:pointer;
-  border-radius:6px;
 }
-
-.role-select button.active{
+.roles button.active{
   border-color:#ff9900;
-  background:#ffe0b2;
+  background:#fff3e0;
 }
 
+/* INPUTS */
 input{
   width:100%;
-  padding:12px;
+  padding:14px;
   margin-top:10px;
-  border-radius:5px;
-  border:1px solid #ccc;
-  font-size:15px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  background:#fafafa;
+}
+input:focus{
+  outline:none;
+  border-color:#ff9900;
+  box-shadow:0 0 0 2px rgba(255,153,0,.25);
 }
 
-button.main{
+/* BUTTONS */
+.main-btn{
   width:100%;
-  margin-top:15px;
-  padding:12px;
-  background:#ffd814;
-  border:1px solid #fcd200;
-  font-weight:bold;
-  cursor:pointer;
-  font-size:16px;
-}
-
-button.secondary{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  background:#ff9900;
+  margin-top:16px;
+  padding:14px;
   border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#ff9900,#ffb703);
+  font-size:16px;
   font-weight:bold;
   cursor:pointer;
-  font-size:16px;
+}
+.secondary-btn{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:#f1f3f6;
+  font-weight:bold;
+  cursor:pointer;
 }
 
+/* TERMS */
 .terms{
+  display:flex;
+  gap:8px;
   margin-top:12px;
   font-size:13px;
-  display:flex;
-  gap:6px;
-  align-items:flex-start;
 }
-
 .terms a{
-  color:#007185;
-  cursor:pointer;
+  color:#ff9900;
   text-decoration:underline;
+  cursor:pointer;
 }
 
+/* MESSAGE */
 .message{
   margin-top:12px;
   padding:10px;
-  border-radius:5px;
+  border-radius:10px;
   font-size:14px;
   display:none;
 }
+.success{background:#d4edda;color:#155724}
+.error{background:#f8d7da;color:#721c24}
 
-.success{ background:#d4edda; color:#155724; }
-.error{ background:#f8d7da; color:#721c24; }
-
-/* TERMS MODAL */
+/* MODAL */
 .modal{
   position:fixed;
   inset:0;
@@ -147,82 +144,68 @@ button.secondary{
   justify-content:center;
   align-items:center;
 }
-.modal-content{
+.modal-box{
   background:#fff;
-  max-width:420px;
-  max-height:80vh;
-  overflow:auto;
   padding:20px;
-  border-radius:8px;
+  max-width:420px;
+  border-radius:16px;
 }
-.modal-content h3{margin-top:0}
-.modal-content button{
-  margin-top:10px;
+.modal-box button{
+  margin-top:12px;
   width:100%;
-  padding:10px;
-  background:#ff9900;
+  padding:12px;
   border:none;
+  border-radius:12px;
+  background:#ff9900;
   font-weight:bold;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="login-card">
 
   <!-- BRAND -->
   <div class="brand">
-    <span class="logo">🌀 GENJIXONGOR</span>
-    <h1>🔁 Reselling & Buying Products</h1>
-    <p>Select role before login or register</p>
+    <div class="logo">🌀 GENJIXONGOR</div>
+    <h1>Reselling & Buying</h1>
+    <p>Login or create your account</p>
   </div>
 
-  <!-- LOGIN BOX -->
-  <div class="login-box">
-
-    <!-- ROLE -->
-    <div class="role-select">
-      <button id="buyerBtn" onclick="selectRole('buyer')">🛍️ Buyer</button>
-      <button id="sellerBtn" onclick="selectRole('seller')">📦 Seller</button>
-    </div>
-
-    <!-- INPUTS -->
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-
-    <!-- TERMS -->
-    <div class="terms">
-      <input type="checkbox" id="agree">
-      <span>
-        I agree to the
-        <a onclick="openTerms()">Terms & Conditions</a>
-      </span>
-    </div>
-
-    <!-- MESSAGE -->
-    <div id="msg" class="message"></div>
-
-    <!-- BUTTONS -->
-    <button class="main" onclick="login()">Login</button>
-    <button class="secondary" onclick="register()">Register</button>
-
+  <!-- ROLE -->
+  <div class="roles">
+    <button id="buyerBtn" onclick="selectRole('buyer')">🛍️ Buyer</button>
+    <button id="sellerBtn" onclick="selectRole('seller')">📦 Seller</button>
   </div>
+
+  <!-- INPUTS -->
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <!-- TERMS -->
+  <div class="terms">
+    <input type="checkbox" id="agree">
+    <span>I agree to the <a onclick="openTerms()">Terms</a></span>
+  </div>
+
+  <div id="msg" class="message"></div>
+
+  <!-- ACTIONS -->
+  <button class="main-btn" onclick="login()">Login</button>
+  <button class="secondary-btn" onclick="register()">Create Account</button>
 
 </div>
 
 <!-- TERMS MODAL -->
 <div class="modal" id="termsModal">
-  <div class="modal-content">
+  <div class="modal-box">
     <h3>Terms & Conditions</h3>
     <p>
-      • This platform is a marketplace for reselling and buying products.<br><br>
-      • Sellers are responsible for product accuracy, images, and pricing.<br><br>
-      • Buyers must verify product details before purchasing.<br><br>
-      • The platform is not responsible for disputes between buyers and sellers.<br><br>
-      • Any misuse, fraud, or illegal activity will result in account termination.<br><br>
-      • By using this app, you agree to these terms.
+      This platform connects buyers and sellers.<br><br>
+      Sellers are responsible for their products.<br><br>
+      Buyers must verify product details.<br><br>
+      Fraud or misuse will result in account termination.
     </p>
     <button onclick="closeTerms()">Close</button>
   </div>
@@ -237,73 +220,67 @@ firebase.initializeApp({
 
 const auth=firebase.auth();
 const db=firebase.firestore();
-
-let selectedRole=null;
+let role=null;
 
 /* ROLE */
-function selectRole(role){
-  selectedRole=role;
+function selectRole(r){
+  role=r;
   buyerBtn.classList.remove("active");
   sellerBtn.classList.remove("active");
-  if(role==="buyer") buyerBtn.classList.add("active");
-  if(role==="seller") sellerBtn.classList.add("active");
+  if(r==="buyer") buyerBtn.classList.add("active");
+  if(r==="seller") sellerBtn.classList.add("active");
 }
 
 /* MESSAGE */
-function showMessage(text,type){
+function showMsg(text,type){
   msg.innerText=text;
   msg.className="message "+type;
   msg.style.display="block";
 }
 
 /* TERMS */
-function openTerms(){ termsModal.style.display="flex"; }
-function closeTerms(){ termsModal.style.display="none"; }
+function openTerms(){termsModal.style.display="flex";}
+function closeTerms(){termsModal.style.display="none";}
 
-/* VALIDATION */
-function validate(){
-  if(!selectedRole){ showMessage("Select Buyer or Seller","error"); return false; }
-  if(!agree.checked){ showMessage("You must accept Terms & Conditions","error"); return false; }
-  if(!email.value || !password.value){ showMessage("Enter email & password","error"); return false; }
+/* VALIDATE */
+function valid(){
+  if(!role){showMsg("Select Buyer or Seller","error");return false;}
+  if(!agree.checked){showMsg("Accept terms first","error");return false;}
+  if(!email.value||!password.value){showMsg("Enter email & password","error");return false;}
   return true;
 }
 
 /* REGISTER */
 function register(){
-  if(!validate()) return;
-
+  if(!valid())return;
   auth.createUserWithEmailAndPassword(email.value,password.value)
-    .then(async cred=>{
-      await db.collection("users").doc(cred.user.uid).set({
-        role:selectedRole,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
-      showMessage("Account created successfully","success");
-      setTimeout(()=>location.replace(selectedRole==="seller"?"seller.html":"index.html"),1200);
-    })
-    .catch(e=>showMessage(e.message,"error"));
+  .then(async cred=>{
+    await db.collection("users").doc(cred.user.uid).set({
+      role:role,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showMsg("Account created successfully","success");
+    setTimeout(()=>location.replace(role==="seller"?"seller.html":"index.html"),1200);
+  })
+  .catch(e=>showMsg(e.message,"error"));
 }
 
 /* LOGIN */
 function login(){
-  if(!validate()) return;
-
+  if(!valid())return;
   auth.signInWithEmailAndPassword(email.value,password.value)
-    .then(async cred=>{
-      const doc=await db.collection("users").doc(cred.user.uid).get();
-      if(!doc.exists || doc.data().role!==selectedRole){
-        showMessage("Role mismatch","error");
-        auth.signOut();
-        return;
-      }
-      showMessage("Login successful","success");
-      setTimeout(()=>location.replace(selectedRole==="seller"?"seller.html":"index.html"),1000);
-    })
-    .catch(e=>showMessage(e.message,"error"));
+  .then(async cred=>{
+    const doc=await db.collection("users").doc(cred.user.uid).get();
+    if(!doc.exists||doc.data().role!==role){
+      showMsg("Role mismatch","error");
+      auth.signOut();
+      return;
+    }
+    showMsg("Login successful","success");
+    setTimeout(()=>location.replace(role==="seller"?"seller.html":"index.html"),1000);
+  })
+  .catch(e=>showMsg(e.message,"error"));
 }
-
-/* STOP AUTO LOGIN LOOP */
-auth.onAuthStateChanged(()=>{});
 </script>
 
 </body>
