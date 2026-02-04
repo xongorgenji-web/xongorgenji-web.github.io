@@ -5,156 +5,196 @@
 <title>Reselling & Buying Products</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f1f3f6}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Inter',system-ui;
+  background:#f4f6f9;
+}
 
 /* HEADER */
 header{
-  background:linear-gradient(90deg,#131921,#1f2933);
+  background:#0f2027;
   color:#fff;
-  padding:14px;
+  padding:12px 14px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
-header h2{margin:0;color:#ff9900}
+header h2{
+  margin:0;
+  font-size:16px;
+  color:#ffb703;
+}
 header button{
-  background:#ffd814;
+  background:#ffb703;
   border:none;
   padding:8px 14px;
-  font-weight:bold;
-  cursor:pointer;
-  border-radius:4px;
+  border-radius:12px;
+  font-weight:700;
 }
 
 /* SEARCH */
 .search-box{
   background:#fff;
+  margin:12px;
   padding:12px;
+  border-radius:16px;
   display:grid;
   gap:8px;
 }
 .search-box input{
   padding:10px;
-  border:1px solid #ccc;
-  border-radius:6px;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
-/* CATEGORIES */
+/* CATEGORY CHIPS */
 .categories{
   display:flex;
-  gap:12px;
-  padding:12px;
-  background:#fff;
+  gap:10px;
+  padding:0 12px 8px;
   overflow-x:auto;
 }
 .category{
-  min-width:90px;
-  padding:10px;
-  background:#f8f8f8;
-  border-radius:10px;
-  text-align:center;
+  padding:8px 14px;
+  background:#fff;
+  border-radius:18px;
+  font-size:13px;
+  font-weight:600;
+  white-space:nowrap;
+  box-shadow:0 4px 10px rgba(0,0,0,.1);
   cursor:pointer;
-  font-weight:bold;
+}
+.category.active{
+  background:#ffb703;
 }
 
-/* PRODUCTS */
+/* PRODUCTS GRID */
 .products{
-  padding:15px;
+  padding:12px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:15px;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
 }
+
+/* SMALL CARD */
 .product{
   background:#fff;
-  border-radius:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,.15);
+  border-radius:14px;
   overflow:hidden;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  cursor:pointer;
 }
 .product img{
   width:100%;
-  height:170px;
+  aspect-ratio:1/1;
   object-fit:cover;
 }
-.product-body{padding:12px}
-.price{color:#b12704;font-weight:bold}
-
-/* BUTTONS */
-.whatsapp-btn{
-  background:#25D366;
-  color:#fff;
-  border:none;
-  padding:10px;
-  width:100%;
-  font-weight:bold;
-  border-radius:5px;
-  margin-top:8px;
-  cursor:pointer;
-}
-.comment-box{
-  margin-top:8px;
-}
-.comment-box textarea{
-  width:100%;
+.product-body{
   padding:8px;
-  border-radius:5px;
-  border:1px solid #ccc;
 }
-.comment-box button{
-  width:100%;
-  margin-top:6px;
-  padding:8px;
-  background:#ff9900;
-  border:none;
-  font-weight:bold;
-  cursor:pointer;
-}
-.comment{
-  background:#f1f3f6;
-  padding:6px;
-  border-radius:4px;
-  margin-top:4px;
+.product-body h4{
+  margin:0;
   font-size:13px;
+  font-weight:600;
 }
+.price{
+  font-size:14px;
+  font-weight:700;
+  color:#c1121f;
+}
+
+/* MODAL */
+#productModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#productModal .box{
+  background:#fff;
+  width:92%;
+  max-width:420px;
+  border-radius:18px;
+  overflow:hidden;
+}
+#productModal img{
+  width:100%;
+  aspect-ratio:4/5;
+  object-fit:cover;
+}
+#productModal .content{
+  padding:14px;
+}
+.big-price{
+  font-weight:800;
+  font-size:18px;
+  color:#c1121f;
+}
+#productModal button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  margin-top:8px;
+  font-weight:700;
+}
+.whatsapp{background:#25D366;color:#fff}
+.close{background:#eee}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>🔁 Reselling & Buying Products</h2>
+  <h2>🔁 Reselling</h2>
   <button onclick="logout()">Logout</button>
 </header>
 
-<!-- SEARCH (FIXED ✅) -->
 <div class="search-box">
-  <input id="searchName"
-         placeholder="🔍 Search product name"
-         oninput="loadProducts()">
-
-  <input id="searchLocation"
-         placeholder="📍 Village or District"
-         oninput="loadProducts()">
+  <input id="searchName" placeholder="🔍 Search product" oninput="loadProducts()">
+  <input id="searchLocation" placeholder="📍 Location" oninput="loadProducts()">
 </div>
 
-<!-- CATEGORIES -->
+<!-- CATEGORY FILTER -->
 <div class="categories">
-  <div class="category" onclick="setCategory('')">🏠 All</div>
-  <div class="category" onclick="setCategory('Phones')">📱 Phones</div>
-  <div class="category" onclick="setCategory('Clothes')">👕 Clothes</div>
-  <div class="category" onclick="setCategory('Electronics')">💻 Electronics</div>
-  <div class="category" onclick="setCategory('Furniture')">🪑 Furniture</div>
-  <div class="category" onclick="setCategory('Bike')">🏍️ Bike</div>
-  <div class="category" onclick="setCategory('Car')">🚗 Car</div>
+  <div class="category active" onclick="setCategory('')">All</div>
+  <div class="category" onclick="setCategory('Phones')">Phones</div>
+  <div class="category" onclick="setCategory('Clothes')">Clothes</div>
+  <div class="category" onclick="setCategory('Electronics')">Electronics</div>
+  <div class="category" onclick="setCategory('Furniture')">Furniture</div>
+  <div class="category" onclick="setCategory('Bike')">Bike</div>
+  <div class="category" onclick="setCategory('Car')">Car</div>
 </div>
 
-<!-- PRODUCTS -->
 <div class="products" id="productList"></div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal">
+  <div class="box">
+    <img id="pmImage">
+    <div class="content">
+      <h3 id="pmName"></h3>
+      <div id="pmPrice" class="big-price"></div>
+      <p id="pmLocation"></p>
+      <button class="whatsapp" id="pmWhatsApp">💬 Chat on WhatsApp</button>
+      <button class="close" onclick="closeProduct()">Close</button>
+    </div>
+  </div>
+</div>
 
 <script>
 firebase.initializeApp({
@@ -165,7 +205,6 @@ firebase.initializeApp({
 
 const auth=firebase.auth();
 const db=firebase.firestore();
-
 let currentUserId=null;
 let selectedCategory="";
 
@@ -175,86 +214,57 @@ auth.onAuthStateChanged(user=>{
   loadProducts();
 });
 
-function loadProducts(){
-  const nameFilter=searchName.value.toLowerCase();
-  const locFilter=searchLocation.value.toLowerCase();
+function setCategory(cat){
+  selectedCategory=cat;
+  document.querySelectorAll(".category").forEach(c=>c.classList.remove("active"));
+  event.target.classList.add("active");
+  loadProducts();
+}
 
-  db.collection("products")
-    .where("status","==","available")
-    .onSnapshot(snapshot=>{
+function loadProducts(){
+  const name=searchName.value.toLowerCase();
+  const loc=searchLocation.value.toLowerCase();
+
+  db.collection("products").where("status","==","available")
+    .onSnapshot(snap=>{
       productList.innerHTML="";
-      snapshot.forEach(doc=>{
+      snap.forEach(doc=>{
         const p=doc.data();
         if(selectedCategory && p.category!==selectedCategory) return;
-        if(nameFilter && !p.name.toLowerCase().includes(nameFilter)) return;
-        if(locFilter && !(`${p.village} ${p.district}`.toLowerCase().includes(locFilter))) return;
+        if(name && !p.name.toLowerCase().includes(name)) return;
+        if(loc && !(`${p.village} ${p.district}`.toLowerCase().includes(loc))) return;
 
-        const div=document.createElement("div");
-        div.className="product";
-
-        div.innerHTML=`
+        const d=document.createElement("div");
+        d.className="product";
+        d.onclick=()=>openProduct(p);
+        d.innerHTML=`
           <img src="${p.image}" onerror="this.src='https://via.placeholder.com/300'">
           <div class="product-body">
             <h4>${p.name}</h4>
             <div class="price">₹${p.price}</div>
-            <p>📍 ${p.village}, ${p.district}, ${p.state}</p>
-
-            <button class="whatsapp-btn"
-              onclick="openWhatsApp('${p.contact}','${p.name}')">
-              💬 Chat on WhatsApp
-            </button>
-
-            <div class="comment-box">
-              <textarea id="c_${doc.id}" placeholder="Ask a question..."></textarea>
-              <button onclick="addComment('${doc.id}')">💬 Comment</button>
-              <div id="comments_${doc.id}"></div>
-            </div>
           </div>
         `;
-        productList.appendChild(div);
-        loadComments(doc.id);
+        productList.appendChild(d);
       });
     });
 }
 
-function setCategory(cat){
-  selectedCategory=cat;
-  loadProducts();
+function openProduct(p){
+  pmImage.src=p.image||"https://via.placeholder.com/400";
+  pmName.innerText=p.name;
+  pmPrice.innerText="₹"+p.price;
+  pmLocation.innerText=`📍 ${p.village}, ${p.district}, ${p.state}`;
+  pmWhatsApp.onclick=()=>openWhatsApp(p.contact,p.name);
+  productModal.style.display="flex";
+}
+
+function closeProduct(){
+  productModal.style.display="none";
 }
 
 function openWhatsApp(num,name){
   const msg=encodeURIComponent(`Hi, I am interested in your ${name}.`);
   window.open(`https://wa.me/91${num}?text=${msg}`,"_blank");
-}
-
-/* COMMENTS */
-function addComment(productId){
-  const text=document.getElementById("c_"+productId).value.trim();
-  if(!text) return;
-
-  db.collection("products").doc(productId)
-    .collection("comments")
-    .add({
-      text:text,
-      userId:currentUserId,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-  document.getElementById("c_"+productId).value="";
-}
-
-function loadComments(productId){
-  db.collection("products").doc(productId)
-    .collection("comments")
-    .orderBy("createdAt","desc")
-    .limit(3)
-    .onSnapshot(snapshot=>{
-      const box=document.getElementById("comments_"+productId);
-      box.innerHTML="";
-      snapshot.forEach(doc=>{
-        box.innerHTML+=`<div class="comment">💬 ${doc.data().text}</div>`;
-      });
-    });
 }
 
 function logout(){
