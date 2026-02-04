@@ -183,6 +183,16 @@ input:focus{
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
+  <!-- FORGOT PASSWORD (ADDED ONLY) -->
+  <p id="forgotPassword" style="
+    text-align:right;
+    margin-top:6px;
+    font-size:13px;
+    color:#ff9900;
+    cursor:pointer;">
+    Forgot password?
+  </p>
+
   <!-- TERMS -->
   <div class="terms">
     <input type="checkbox" id="agree">
@@ -281,6 +291,17 @@ function login(){
   })
   .catch(e=>showMsg(e.message,"error"));
 }
+
+/* PASSWORD RESET (ADD-ON ONLY) */
+document.getElementById("forgotPassword").addEventListener("click",()=>{
+  if(!email.value){
+    showMsg("Please enter your email first","error");
+    return;
+  }
+  auth.sendPasswordResetEmail(email.value)
+    .then(()=>showMsg("Password reset link sent to your email 📩","success"))
+    .catch(e=>showMsg(e.message,"error"));
+});
 </script>
 
 </body>
