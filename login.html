@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Login – Reselling & Buying</title>
+<title>Login – Genji Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Firebase -->
@@ -20,120 +20,170 @@ body{
   justify-content:center;
   align-items:center;
 }
-.login-card{
+
+.card{
   width:100%;
-  max-width:380px;
+  max-width:420px;
   background:#fff;
   border-radius:20px;
   padding:24px;
   box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
-.brand{text-align:center;margin-bottom:20px;}
-.brand .logo{font-size:14px;letter-spacing:2px;color:#ffb703;font-weight:bold;}
-.brand h1{margin:6px 0 0;font-size:26px;}
-.brand p{margin-top:6px;font-size:14px;color:#555;}
-.roles{display:flex;gap:12px;margin:16px 0;}
-.roles button{
-  flex:1;padding:12px;border-radius:14px;
-  border:2px solid #ddd;background:#fafafa;
-  font-weight:bold;cursor:pointer;
+
+h1{text-align:center;margin-top:0}
+
+input,select{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:14px;
+  border:1px solid #ddd;
 }
-.roles button.active{
-  border-color:#ff9900;background:#fff3e0;
+
+button{
+  width:100%;
+  margin-top:14px;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  font-weight:bold;
+  cursor:pointer;
 }
-input{
-  width:100%;padding:14px;margin-top:10px;
-  border-radius:14px;border:1px solid #ddd;
-  background:#fafafa;
+
+.primary{background:#ff9900;color:#fff}
+.secondary{background:#f1f3f6}
+
+.toggle{
+  text-align:center;
+  margin-top:12px;
+  color:#ff9900;
+  font-weight:bold;
+  cursor:pointer;
 }
-input:focus{
-  outline:none;border-color:#ff9900;
-  box-shadow:0 0 0 2px rgba(255,153,0,.25);
+
+.terms{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  font-size:13px;
 }
-.main-btn{
-  width:100%;margin-top:16px;padding:14px;
-  border:none;border-radius:16px;
-  background:linear-gradient(135deg,#ff9900,#ffb703);
-  font-size:16px;font-weight:bold;cursor:pointer;
-}
-.secondary-btn{
-  width:100%;margin-top:10px;padding:14px;
-  border:none;border-radius:16px;
-  background:#f1f3f6;font-weight:bold;cursor:pointer;
-}
-.terms{display:flex;gap:8px;margin-top:12px;font-size:13px;}
-.terms a{color:#ff9900;text-decoration:underline;cursor:pointer;}
-.message{
-  margin-top:12px;padding:10px;border-radius:10px;
-  font-size:14px;display:none;
-}
-.success{background:#d4edda;color:#155724}
-.error{background:#f8d7da;color:#721c24}
+
 .modal{
-  position:fixed;inset:0;background:rgba(0,0,0,0.6);
-  display:none;justify-content:center;align-items:center;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
+
 .modal-box{
-  background:#fff;padding:20px;
-  max-width:420px;border-radius:16px;
-}
-.modal-box button{
-  margin-top:12px;width:100%;
-  padding:12px;border:none;
-  border-radius:12px;background:#ff9900;font-weight:bold;
+  background:#fff;
+  padding:20px;
+  max-width:420px;
+  border-radius:16px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="login-card">
+<div class="card">
 
-  <div class="brand">
-    <div class="logo">🌀 GENJIXONGOR</div>
-    <h1>Reselling & Buying</h1>
-    <p>Login or create your account</p>
-  </div>
+<h1 id="title">Login</h1>
 
-  <div class="roles">
-    <button id="buyerBtn" onclick="selectRole('buyer')">🛍️ Buyer</button>
-    <button id="sellerBtn" onclick="selectRole('seller')">📦 Seller</button>
-  </div>
+<!-- REGISTER FIELDS -->
+<div id="registerFields" style="display:none">
 
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+  <select id="titleInput">
+    <option>Mr</option>
+    <option>Ms</option>
+    <option>Mrs</option>
+  </select>
 
-  <!-- Forgot Password -->
-  <p id="forgotPassword" style="
-    text-align:right;
-    margin-top:6px;
-    font-size:13px;
-    color:#ff9900;
-    cursor:pointer;">
-    Forgot password?
-  </p>
-
-  <div class="terms">
-    <input type="checkbox" id="agree">
-    <span>I agree to the <a onclick="openTerms()">Terms</a></span>
-  </div>
-
-  <div id="msg" class="message"></div>
-
-  <button class="main-btn" onclick="login()">Login</button>
-  <button class="secondary-btn" onclick="register()">Create Account</button>
+  <input id="name" placeholder="Full Name">
+  <input id="phone" placeholder="Phone Number">
+  <input id="state" placeholder="State">
 
 </div>
 
+<!-- COMMON -->
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<input id="confirmPassword"
+       type="password"
+       placeholder="Confirm Password"
+       style="display:none">
+
+<label style="font-size:13px;">
+  <input type="checkbox" onclick="togglePassword()"> Show Password
+</label>
+
+<!-- FORGOT PASSWORD -->
+<p id="forgotPassword"
+   style="text-align:right;font-size:13px;color:#ff9900;cursor:pointer;">
+   Forgot password?
+</p>
+
+<!-- TERMS -->
+<div class="terms" id="termsBox" style="display:none">
+  <input type="checkbox" id="agree">
+  <span>I agree to the <a onclick="openTerms()" style="cursor:pointer">Terms</a></span>
+</div>
+
+<button class="primary" id="actionBtn"
+        onclick="submitForm()">Login</button>
+
+<div class="toggle" onclick="toggleMode()">
+  Create Account
+</div>
+
+</div>
+
+<!-- TERMS MODAL -->
 <div class="modal" id="termsModal">
   <div class="modal-box">
     <h3>Terms & Conditions</h3>
-    <p>
-      This platform connects buyers and sellers.<br><br>
-      Sellers are responsible for their products.<br><br>
-      Buyers must verify product details.<br><br>
-      Fraud or misuse will result in account termination.
+
+    <p style="font-size:14px;line-height:1.6">
+
+      This platform connects buyers and independent sellers.
+
+      <br><br>
+
+      • Genji Store does NOT handle payments between buyers and sellers.
+      <br>
+      • Buyers must verify product details before purchasing.
+      <br>
+      • All transactions occur directly between buyer and seller.
+
+      <br><br>
+
+      • Sellers are fully responsible for their products, pricing, and delivery.
+      <br>
+      • Genji Store is not liable for fraud, disputes, damages, or losses.
+
+      <br><br>
+
+      • Seller access requires a one-time fee of ₹49.
+      <br>
+      • The seller fee is non-refundable.
+      <br>
+      • Seller accounts are granted after verification and approval.
+
+      <br><br>
+
+      • Misuse, spam, illegal activity, or fraud will result in account termination.
+      <br>
+      • Genji Store reserves the right to suspend any account.
+
+      <br><br>
+
+      By creating an account, you agree to these terms.
+
     </p>
+
     <button onclick="closeTerms()">Close</button>
   </div>
 </div>
@@ -145,84 +195,108 @@ firebase.initializeApp({
   projectId:"genji-store"
 });
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-let role = null;
+const auth=firebase.auth();
+const db=firebase.firestore();
 
-function selectRole(r){
-  role = r;
-  buyerBtn.classList.remove("active");
-  sellerBtn.classList.remove("active");
-  if(r==="buyer") buyerBtn.classList.add("active");
-  if(r==="seller") sellerBtn.classList.add("active");
+let registerMode=false;
+
+/* SWITCH MODE */
+function toggleMode(){
+
+  registerMode=!registerMode;
+
+  registerFields.style.display =
+    registerMode ? "block" : "none";
+
+  confirmPassword.style.display =
+    registerMode ? "block" : "none";
+
+  termsBox.style.display =
+    registerMode ? "flex" : "none";
+
+  title.innerText =
+    registerMode ? "Create Account" : "Login";
+
+  actionBtn.innerText =
+    registerMode ? "Register" : "Login";
+
+  document.querySelector(".toggle").innerText =
+    registerMode ? "Back to Login" : "Create Account";
 }
 
-function showMsg(text,type){
-  msg.innerText = text;
-  msg.className = "message " + type;
-  msg.style.display = "block";
+/* SHOW PASSWORD */
+function togglePassword(){
+  const type =
+    password.type==="password" ? "text" : "password";
+  password.type = type;
+  confirmPassword.type = type;
 }
 
-function openTerms(){ termsModal.style.display="flex"; }
-function closeTerms(){ termsModal.style.display="none"; }
+/* TERMS */
+function openTerms(){termsModal.style.display="flex";}
+function closeTerms(){termsModal.style.display="none";}
 
-function valid(){
-  if(!role){ showMsg("Select Buyer or Seller","error"); return false; }
-  if(!agree.checked){ showMsg("Accept terms first","error"); return false; }
-  if(!email.value || !password.value){
-    showMsg("Enter email & password","error"); return false;
-  }
-  return true;
-}
-
-function register(){
-  if(!valid()) return;
-  auth.createUserWithEmailAndPassword(email.value,password.value)
-  .then(async cred=>{
-    await db.collection("users").doc(cred.user.uid).set({
-      role:role,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showMsg("Account created successfully","success");
-    setTimeout(()=>location.replace(
-      role==="seller"?"seller.html":"index.html"),1200);
-  })
-  .catch(e=>showMsg(e.message,"error"));
-}
-
-function login(){
-  if(!valid()) return;
-  auth.signInWithEmailAndPassword(email.value,password.value)
-  .then(async cred=>{
-    const doc = await db.collection("users")
-      .doc(cred.user.uid).get();
-    if(!doc.exists || doc.data().role!==role){
-      showMsg("Role mismatch","error");
-      auth.signOut(); return;
-    }
-    showMsg("Login successful","success");
-    setTimeout(()=>location.replace(
-      role==="seller"?"seller.html":"index.html"),1000);
-  })
-  .catch(e=>showMsg(e.message,"error"));
-}
-
-/* 🔥 FINAL PASSWORD RESET – GUARANTEED */
-document.getElementById("forgotPassword").addEventListener("click",()=>{
+/* FORGOT PASSWORD */
+forgotPassword.onclick = () => {
   if(!email.value){
-    showMsg("Please enter your email first","error");
+    alert("Enter your email first");
+    return;
+  }
+  auth.sendPasswordResetEmail(email.value)
+    .then(()=>alert("Password reset email sent"));
+};
+
+/* SUBMIT */
+function submitForm(){
+
+  if(!registerMode){
+
+    // LOGIN
+    auth.signInWithEmailAndPassword(
+      email.value, password.value
+    )
+    .then(()=>location.href="index.html")
+    .catch(e=>alert(e.message));
+
     return;
   }
 
-  auth.sendPasswordResetEmail(email.value,{
-    url:"https://xongorgenji-web.github.io",
-    handleCodeInApp:false
+  // REGISTER VALIDATION
+  if(!agree.checked){
+    alert("Accept terms first");
+    return;
+  }
+
+  if(password.value !== confirmPassword.value){
+    alert("Passwords do not match");
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(
+    email.value, password.value
+  )
+  .then(async cred=>{
+
+    await db.collection("users")
+      .doc(cred.user.uid)
+      .set({
+        title: titleInput.value,
+        name: name.value,
+        phone: phone.value,
+        state: state.value,
+        email: email.value,
+        role: "buyer",
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    alert("Account created!");
+    location.href="index.html";
+
   })
-  .then(()=>{
-    showMsg("Password reset link sent to your email 📩","success");
-  })
-  .catch(e=>showMsg(e.message,"error"));
-});
+  .catch(e=>alert(e.message));
+
+}
 </script>
 
 </body>
