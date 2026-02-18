@@ -5,27 +5,19 @@
 <title>Seller Dashboard - Genji Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-
-<!-- Cropper -->
-<link href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet"/>
-<script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.js"></script>
 
 <style>
 body{margin:0;font-family:system-ui;background:#f4f6f9}
 header{background:#0f2027;color:#fff;padding:14px;display:flex;justify-content:space-between}
 .container{padding:16px;max-width:900px;margin:auto}
-.card{background:#fff;padding:20px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.1);margin-bottom:20px}
+.card{background:#fff;padding:20px;border-radius:16px;margin-bottom:20px}
 input,select{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid #ddd}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:12px;font-weight:bold;cursor:pointer}
-.primary{background:#ff9900;color:#fff}
-.preview{max-width:100%;margin-top:10px;border-radius:12px;display:none}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:12px;font-weight:bold;cursor:pointer;background:#ff9900;color:#fff}
 .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.product{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.product{background:#fff;border-radius:14px;overflow:hidden}
 .product img{width:100%;height:180px;object-fit:cover}
 .product-body{padding:10px}
 </style>
@@ -34,187 +26,116 @@ button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:12px;fo
 <body>
 
 <header>
-  <h2>📦 Seller Dashboard</h2>
-  <button onclick="logout()">Logout</button>
+<h2>📦 Seller Dashboard</h2>
+<button onclick="logout()">Logout</button>
 </header>
 
 <div class="container">
 
-  <!-- ADD PRODUCT -->
-  <div class="card">
+<div class="card">
+<h3>Add Product</h3>
 
-    <h3>Add Product</h3>
+<input id="pname" placeholder="Product name">
+<input id="pprice" type="number" placeholder="Price ₹">
 
-    <input id="pname" placeholder="Product name">
-    <input id="pprice" type="number" placeholder="Price ₹">
+<select id="pcategory">
+<option value="">Category</option>
+<option>Phones</option>
+<option>Clothes</option>
+<option>Electronics</option>
+<option>Furniture</option>
+<option>Bike</option>
+<option>Car</option>
+</select>
 
-    <select id="pcategory">
-      <option value="">Category</option>
-      <option>Phones</option>
-      <option>Clothes</option>
-      <option>Electronics</option>
-      <option>Furniture</option>
-      <option>Bike</option>
-      <option>Car</option>
-    </select>
+<h4>Product Images (URL)</h4>
+<input id="img1" placeholder="Front image URL (required)">
+<input id="img2" placeholder="Image 2 URL (optional)">
+<input id="img3" placeholder="Image 3 URL (optional)">
 
-    <!-- IMAGE SELECT -->
-    <input type="file" id="pimage" accept="image/*">
+<input id="pcontact" placeholder="WhatsApp number">
+<input id="pvillage" placeholder="Village">
+<input id="pdistrict" placeholder="District">
+<input id="pstate" placeholder="State" value="Meghalaya">
 
-    <!-- CROP PREVIEW -->
-    <img id="cropPreview" class="preview">
+<button onclick="saveProduct()">Save Product</button>
+</div>
 
-    <button class="primary" id="cropBtn" onclick="cropImage()" style="display:none">
-      ✂️ Crop Image
-    </button>
-
-    <input id="pcontact" placeholder="WhatsApp number">
-    <input id="pvillage" placeholder="Village">
-    <input id="pdistrict" placeholder="District">
-    <input id="pstate" placeholder="State" value="Meghalaya">
-
-    <button class="primary" onclick="saveProduct()">
-      Save Product
-    </button>
-
-  </div>
-
-  <!-- MY PRODUCTS -->
-  <div class="card">
-    <h3>My Products</h3>
-    <div class="products" id="myProducts">Loading...</div>
-  </div>
+<div class="card">
+<h3>My Products</h3>
+<div class="products" id="myProducts">Loading...</div>
+</div>
 
 </div>
 
 <script>
-
-/* FIREBASE CONFIG */
 firebase.initializeApp({
-  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
-  authDomain:"genji-store.firebaseapp.com",
-  projectId:"genji-store",
-  storageBucket:"genji-store.appspot.com"
+apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+authDomain:"genji-store.firebaseapp.com",
+projectId:"genji-store"
 });
 
 const auth=firebase.auth();
 const db=firebase.firestore();
-const storage=firebase.storage();
-
 let uid=null;
-let cropper=null;
-let croppedBlob=null;
 
-/* AUTH */
 auth.onAuthStateChanged(user=>{
-  if(!user){location.href="login.html";return;}
-  uid=user.uid;
-  loadProducts();
+if(!user){location.href="login.html";return;}
+uid=user.uid;
+loadProducts();
 });
 
-/* SELECT IMAGE */
-pimage.addEventListener("change",e=>{
-  const file=e.target.files[0];
-  if(!file)return;
-
-  const reader=new FileReader();
-
-  reader.onload=ev=>{
-    cropPreview.src=ev.target.result;
-    cropPreview.style.display="block";
-    cropBtn.style.display="block";
-
-    if(cropper)cropper.destroy();
-
-    cropper=new Cropper(cropPreview,{
-      aspectRatio:1,
-      viewMode:1
-    });
-  };
-
-  reader.readAsDataURL(file);
-});
-
-/* CROP IMAGE */
-function cropImage(){
-
-  const canvas=cropper.getCroppedCanvas({
-    width:800,
-    height:800
-  });
-
-  canvas.toBlob(blob=>{
-    croppedBlob=blob;
-    cropPreview.src=canvas.toDataURL();
-    alert("Image cropped!");
-  },"image/jpeg",0.9);
-
-}
-
-/* SAVE PRODUCT */
 async function saveProduct(){
 
-  if(!croppedBlob){
-    alert("Crop image first");
-    return;
-  }
+const imgFront = img1.value.trim();
+if(!imgFront){ alert("Front image required"); return; }
 
-  const ref=storage.ref(`products/${uid}_${Date.now()}.jpg`);
-  await ref.put(croppedBlob);
+const images = [
+img1.value.trim(),
+img2.value.trim(),
+img3.value.trim()
+].filter(u=>u);
 
-  const url=await ref.getDownloadURL();
+await db.collection("products").add({
+name:pname.value,
+price:Number(pprice.value),
+category:pcategory.value,
+images:images,
+contact:pcontact.value,
+village:pvillage.value,
+district:pdistrict.value,
+state:pstate.value,
+sellerId:uid,
+status:"available",
+createdAt:firebase.firestore.FieldValue.serverTimestamp()
+});
 
-  await db.collection("products").add({
-    name:pname.value,
-    price:Number(pprice.value),
-    category:pcategory.value,
-    image:url,
-    contact:pcontact.value,
-    village:pvillage.value,
-    district:pdistrict.value,
-    state:pstate.value,
-    sellerId:uid,
-    status:"available",
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  alert("Product saved!");
-  location.reload();
-
+alert("Product saved!");
+location.reload();
 }
 
-/* LOAD PRODUCTS */
 function loadProducts(){
-
-  db.collection("products")
-    .where("sellerId","==",uid)
-    .onSnapshot(snap=>{
-
-      myProducts.innerHTML="";
-
-      snap.forEach(doc=>{
-        const p=doc.data();
-
-        myProducts.innerHTML+=`
-          <div class="product">
-            <img src="${p.image}">
-            <div class="product-body">
-              <h4>${p.name}</h4>
-              <b>₹${p.price}</b>
-            </div>
-          </div>
-        `;
-      });
-
-    });
-
+db.collection("products")
+.where("sellerId","==",uid)
+.onSnapshot(snap=>{
+myProducts.innerHTML="";
+snap.forEach(doc=>{
+const p=doc.data();
+myProducts.innerHTML+=`
+<div class="product">
+<img src="${p.images?.[0] || ''}">
+<div class="product-body">
+<h4>${p.name}</h4>
+<b>₹${p.price}</b>
+</div>
+</div>`;
+});
+});
 }
 
-/* LOGOUT */
 function logout(){
-  auth.signOut().then(()=>location.href="login.html");
+auth.signOut().then(()=>location.href="login.html");
 }
-
 </script>
 
 </body>
