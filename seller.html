@@ -5,136 +5,297 @@
 <title>Seller Dashboard - Genji Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#f4f6f9}
-header{background:#0f2027;color:#fff;padding:14px;display:flex;justify-content:space-between}
-.container{padding:16px;max-width:900px;margin:auto}
-.card{background:#fff;padding:20px;border-radius:16px;margin-bottom:20px}
-input,select{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid #ddd}
-button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:12px;font-weight:bold;cursor:pointer;background:#ff9900;color:#fff}
-.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.product{background:#fff;border-radius:14px;overflow:hidden}
-.product img{width:100%;height:180px;object-fit:cover}
-.product-body{padding:10px}
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#f4f6f9;
+}
+
+/* HEADER */
+header{
+  background:#0f2027;
+  color:#fff;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+header button{
+  background:#ffb703;
+  border:none;
+  padding:8px 14px;
+  border-radius:12px;
+  font-weight:700;
+  margin-left:6px;
+  cursor:pointer;
+}
+
+/* CONTAINER */
+.container{
+  padding:14px;
+  max-width:900px;
+  margin:auto;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.12);
+  margin-bottom:18px;
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+.preview{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:14px;
+  display:none;
+  margin-top:8px;
+}
+
+/* BUTTON */
+.primary{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#ff9900,#ffb703);
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* PRODUCTS */
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+}
+
+.product{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 8px 25px rgba(0,0,0,.15);
+}
+
+.product img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+}
+
+.product-body{
+  padding:12px;
+}
+
+.price{
+  color:#b12704;
+  font-weight:800;
+  font-size:18px;
+}
+
+.product button{
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:10px;
+  margin-top:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.delete-btn{background:#dc3545;color:#fff}
 </style>
 </head>
 
 <body>
 
 <header>
-<h2>📦 Seller Dashboard</h2>
-<button onclick="logout()">Logout</button>
+
+  <!-- PROFILE IMAGE -->
+  <div style="display:flex;align-items:center;gap:10px;">
+    
+    <img
+      src="https://i.ibb.co/KcZSwMtR/file-00000000914471f88063a28abf67d7bc.png"
+      style="
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        object-fit:cover;
+        border:2px solid #ffb703;
+      ">
+
+    <h2 style="margin:0;">Seller Dashboard</h2>
+
+  </div>
+
+  <div>
+    <button onclick="location.href='index.html'">🛍️ View Store</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
 </header>
 
 <div class="container">
 
-<div class="card">
-<h3>Add Product</h3>
+  <!-- ADD PRODUCT -->
+  <div class="card">
+    <h3>Add Product (1 Required + 2 Optional Images)</h3>
 
-<input id="pname" placeholder="Product name">
-<input id="pprice" type="number" placeholder="Price ₹">
+    <input id="pname" placeholder="Product name">
+    <input id="pprice" type="number" placeholder="Price">
 
-<select id="pcategory">
-<option value="">Category</option>
-<option>Phones</option>
-<option>Clothes</option>
-<option>Electronics</option>
-<option>Furniture</option>
-<option>Bike</option>
-<option>Car</option>
-</select>
+    <select id="pcategory">
+      <option value="">Select Category</option>
+      <option>Phones</option>
+      <option>Clothes</option>
+      <option>Electronics</option>
+      <option>Furniture</option>
+      <option>Bike</option>
+      <option>Car</option>
+    </select>
 
-<h4>Product Images (URL)</h4>
-<input id="img1" placeholder="Front image URL (required)">
-<input id="img2" placeholder="Image 2 URL (optional)">
-<input id="img3" placeholder="Image 3 URL (optional)">
+    <!-- IMAGE URLS -->
+    <input id="img1" placeholder="Image URL 1 (Required)">
+    <input id="img2" placeholder="Image URL 2 (Optional)">
+    <input id="img3" placeholder="Image URL 3 (Optional)">
 
-<input id="pcontact" placeholder="WhatsApp number">
-<input id="pvillage" placeholder="Village">
-<input id="pdistrict" placeholder="District">
-<input id="pstate" placeholder="State" value="Meghalaya">
+    <img id="preview" class="preview">
 
-<button onclick="saveProduct()">Save Product</button>
-</div>
+    <input id="pcontact" placeholder="WhatsApp number">
+    <input id="pvillage" placeholder="Village">
+    <input id="pdistrict" placeholder="District">
+    <input id="pstate" placeholder="State">
 
-<div class="card">
-<h3>My Products</h3>
-<div class="products" id="myProducts">Loading...</div>
-</div>
+    <button class="primary" onclick="submitProduct()">Save Product</button>
+  </div>
+
+  <!-- MY PRODUCTS -->
+  <div class="card">
+    <h3>My Products</h3>
+    <div class="products" id="myProducts"></div>
+  </div>
 
 </div>
 
 <script>
 firebase.initializeApp({
-apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
-authDomain:"genji-store.firebaseapp.com",
-projectId:"genji-store"
+  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+  authDomain:"genji-store.firebaseapp.com",
+  projectId:"genji-store"
 });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
-let uid=null;
+const auth = firebase.auth();
+const db = firebase.firestore();
 
+let uid = null;
+
+/* AUTH CHECK */
 auth.onAuthStateChanged(user=>{
-if(!user){location.href="login.html";return;}
-uid=user.uid;
-loadProducts();
+  if(!user){
+    location.replace("login.html");
+    return;
+  }
+  uid = user.uid;
+  loadProducts();
 });
 
-async function saveProduct(){
-
-const imgFront = img1.value.trim();
-if(!imgFront){ alert("Front image required"); return; }
-
-const images = [
-img1.value.trim(),
-img2.value.trim(),
-img3.value.trim()
-].filter(u=>u);
-
-await db.collection("products").add({
-name:pname.value,
-price:Number(pprice.value),
-category:pcategory.value,
-images:images,
-contact:pcontact.value,
-village:pvillage.value,
-district:pdistrict.value,
-state:pstate.value,
-sellerId:uid,
-status:"available",
-createdAt:firebase.firestore.FieldValue.serverTimestamp()
-});
-
-alert("Product saved!");
-location.reload();
+/* PREVIEW FIRST IMAGE */
+function updatePreview(){
+  const url = img1.value.trim();
+  if(url.startsWith("http")){
+    preview.src = url;
+    preview.style.display = "block";
+  }else{
+    preview.style.display = "none";
+  }
 }
 
+img1.oninput = updatePreview;
+
+/* SAVE PRODUCT */
+function submitProduct(){
+
+  const urls = [
+    img1.value.trim(),
+    img2.value.trim(),
+    img3.value.trim()
+  ].filter(u => u.startsWith("http"));
+
+  if(!img1.value.trim().startsWith("http")){
+    alert("Image URL 1 is required");
+    return;
+  }
+
+  db.collection("products").add({
+    name: pname.value,
+    price: Number(pprice.value),
+    category: pcategory.value,
+
+    image: urls[0],  // cover photo
+    images: urls,    // all photos
+
+    contact: pcontact.value,
+    village: pvillage.value,
+    district: pdistrict.value,
+    state: pstate.value,
+    sellerId: uid,
+    status: "available"
+  }).then(()=>location.reload());
+
+}
+
+/* LOAD PRODUCTS */
 function loadProducts(){
-db.collection("products")
-.where("sellerId","==",uid)
-.onSnapshot(snap=>{
-myProducts.innerHTML="";
-snap.forEach(doc=>{
-const p=doc.data();
-myProducts.innerHTML+=`
-<div class="product">
-<img src="${p.images?.[0] || ''}">
-<div class="product-body">
-<h4>${p.name}</h4>
-<b>₹${p.price}</b>
-</div>
-</div>`;
-});
-});
+  db.collection("products")
+    .where("sellerId","==",uid)
+    .onSnapshot(snap=>{
+      myProducts.innerHTML = "";
+
+      snap.forEach(doc=>{
+        const p = doc.data();
+
+        myProducts.innerHTML += `
+          <div class="product">
+            <img src="${p.image}">
+            <div class="product-body">
+              <h4>${p.name}</h4>
+              <div class="price">₹${p.price}</div>
+              <button class="delete-btn"
+                onclick="deleteProduct('${doc.id}')">
+                Delete
+              </button>
+            </div>
+          </div>`;
+      });
+    });
 }
 
+/* DELETE */
+function deleteProduct(id){
+  db.collection("products").doc(id).delete();
+}
+
+/* LOGOUT */
 function logout(){
-auth.signOut().then(()=>location.href="login.html");
+  auth.signOut().then(()=>location.replace("login.html"));
 }
 </script>
 
