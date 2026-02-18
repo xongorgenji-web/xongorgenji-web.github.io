@@ -1,18 +1,25 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Login – Genji Store</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
 body{
   margin:0;
   min-height:100vh;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   display:flex;
   justify-content:center;
   align-items:center;
 }
-
 .card{
   width:100%;
   max-width:420px;
@@ -21,9 +28,7 @@ body{
   padding:24px;
   box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
-
 h1{text-align:center;margin-top:0}
-
 input,select{
   width:100%;
   padding:14px;
@@ -31,7 +36,6 @@ input,select{
   border-radius:14px;
   border:1px solid #ddd;
 }
-
 button{
   width:100%;
   margin-top:14px;
@@ -41,10 +45,7 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
-
 .primary{background:#ff9900;color:#fff}
-.secondary{background:#f1f3f6}
-
 .toggle{
   text-align:center;
   margin-top:12px;
@@ -52,14 +53,12 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
-
 .terms{
   display:flex;
   gap:8px;
   margin-top:12px;
   font-size:13px;
 }
-
 .modal{
   position:fixed;
   inset:0;
@@ -68,39 +67,67 @@ button{
   justify-content:center;
   align-items:center;
 }
-
 .modal-box{
   background:#fff;
   padding:20px;
   max-width:420px;
   border-radius:16px;
 }
-</style></head><body><div class="card"><h1 id="title">Login</h1><!-- REGISTER FIELDS --><div id="registerFields" style="display:none">  <select id="titleInput">
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1 id="pageTitle">Login</h1>
+
+<!-- REGISTER FIELDS -->
+<div id="registerFields" style="display:none">
+
+  <select id="titleInput">
     <option>Mr</option>
     <option>Ms</option>
     <option>Mrs</option>
-  </select>  <input id="name" placeholder="Full Name">
-  <input id="phone" placeholder="Phone Number">
-  <input id="state" placeholder="State"></div><!-- COMMON --><input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password"><input id="confirmPassword"
+  </select>
+
+  <input id="nameInput" placeholder="Full Name">
+  <input id="phoneInput" placeholder="Phone Number">
+  <input id="stateInput" placeholder="State">
+
+</div>
+
+<!-- COMMON -->
+<input id="emailInput" type="email" placeholder="Email">
+<input id="passwordInput" type="password" placeholder="Password">
+
+<input id="confirmPasswordInput"
 type="password"
 placeholder="Confirm Password"
 style="display:none">
 
 <label style="font-size:13px;">
-  <input type="checkbox" onclick="togglePassword()"> Show Password
-</label><p id="forgotPassword"
-   style="text-align:right;font-size:13px;color:#ff9900;cursor:pointer;">
-   Forgot password?
-</p><div class="terms" id="termsBox" style="display:none">
-  <input type="checkbox" id="agree">
-  <span>I agree to the <a onclick="openTerms()" style="cursor:pointer">Terms</a></span>
-</div><button class="primary" id="actionBtn"
-onclick="submitForm()">Login</button>
+  <input type="checkbox" id="showPass"> Show Password
+</label>
 
-<div class="toggle" onclick="toggleMode()">
-  Create Account
-</div></div><!-- TERMS MODAL --><div class="modal" id="termsModal">
+<p id="forgotPassword"
+style="text-align:right;font-size:13px;color:#ff9900;cursor:pointer;">
+Forgot password?
+</p>
+
+<div class="terms" id="termsBox" style="display:none">
+  <input type="checkbox" id="agreeCheck">
+  <span>I agree to the <a id="termsLink" style="cursor:pointer">Terms</a></span>
+</div>
+
+<button class="primary" id="actionBtn">Login</button>
+
+<div class="toggle" id="toggleText">Create Account</div>
+
+</div>
+
+<!-- TERMS MODAL -->
+<div class="modal" id="termsModal">
   <div class="modal-box">
     <h3>Terms & Conditions</h3>
     <p style="font-size:14px;line-height:1.6">
@@ -109,98 +136,142 @@ onclick="submitForm()">Login</button>
       The seller fee is non-refundable.<br><br>
       By creating an account, you agree to these terms.
     </p>
-    <button onclick="closeTerms()">Close</button>
+    <button id="closeTerms">Close</button>
   </div>
-</div><script>
+</div>
+
+<script>
 firebase.initializeApp({
   apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
   authDomain:"genji-store.firebaseapp.com",
   projectId:"genji-store"
 });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-let registerMode=false;
+let registerMode = false;
+
+/* ELEMENTS */
+const pageTitle = document.getElementById("pageTitle");
+const registerFields = document.getElementById("registerFields");
+const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+const termsBox = document.getElementById("termsBox");
+const toggleText = document.getElementById("toggleText");
+const actionBtn = document.getElementById("actionBtn");
 
 /* SWITCH MODE */
-function toggleMode(){
-  registerMode=!registerMode;
+toggleText.onclick = () => {
+
+  registerMode = !registerMode;
 
   registerFields.style.display = registerMode ? "block" : "none";
-  confirmPassword.style.display = registerMode ? "block" : "none";
+  confirmPasswordInput.style.display = registerMode ? "block" : "none";
   termsBox.style.display = registerMode ? "flex" : "none";
 
-  title.innerText = registerMode ? "Create Account" : "Login";
-  actionBtn.innerText = registerMode ? "Register" : "Login";
-
-  document.querySelector(".toggle").innerText =
-    registerMode ? "Back to Login" : "Create Account";
-}
-
-/* SHOW PASSWORD */
-function togglePassword(){
-  const type = password.type==="password" ? "text" : "password";
-  password.type = type;
-  confirmPassword.type = type;
-}
-
-/* TERMS */
-function openTerms(){termsModal.style.display="flex";}
-function closeTerms(){termsModal.style.display="none";}
-
-/* FORGOT PASSWORD */
-forgotPassword.onclick = () => {
-  if(!email.value){ alert("Enter your email first"); return; }
-  auth.sendPasswordResetEmail(email.value)
-    .then(()=>alert("Password reset email sent"));
+  pageTitle.textContent = registerMode ? "Create Account" : "Login";
+  actionBtn.textContent = registerMode ? "Register" : "Login";
+  toggleText.textContent = registerMode ? "Back to Login" : "Create Account";
 };
 
-/* SUBMIT */
-function submitForm(){
+/* SHOW PASSWORD */
+document.getElementById("showPass").onchange = () => {
 
-  if(!registerMode){
+  const pwd = document.getElementById("passwordInput");
+  const cpwd = confirmPasswordInput;
 
-    // LOGIN
-    auth.signInWithEmailAndPassword(email.value, password.value)
-      .then(()=>location.href="index.html")
-      .catch(e=>alert(e.message));
+  const type = pwd.type === "password" ? "text" : "password";
+  pwd.type = type;
+  cpwd.type = type;
+};
+
+/* TERMS MODAL */
+document.getElementById("termsLink").onclick =
+  () => document.getElementById("termsModal").style.display = "flex";
+
+document.getElementById("closeTerms").onclick =
+  () => document.getElementById("termsModal").style.display = "none";
+
+/* FORGOT PASSWORD */
+document.getElementById("forgotPassword").onclick = () => {
+
+  const email = document.getElementById("emailInput").value.trim();
+
+  if(!email){
+    alert("Enter your email first");
     return;
   }
 
-  // REGISTER VALIDATION
-  if(!agree.checked){ alert("Accept terms first"); return; }
-  if(password.value !== confirmPassword.value){
-    alert("Passwords do not match"); return;
+  auth.sendPasswordResetEmail(email)
+    .then(()=>alert("Password reset email sent"))
+    .catch(e=>alert(e.message));
+};
+
+/* SUBMIT */
+actionBtn.onclick = async () => {
+
+  const email = document.getElementById("emailInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+
+  if(!email || !password){
+    alert("Enter email and password");
+    return;
   }
 
-  if(!name.value || !phone.value || !state.value){
-    alert("Please fill all fields"); return;
-  }
+  try{
 
-  auth.createUserWithEmailAndPassword(email.value, password.value)
-  .then(async cred=>{
+    /* LOGIN */
+    if(!registerMode){
 
-    const userData = {
-      title: titleInput.value || "",
-      name: name.value || "",
-      phone: phone.value || "",
-      state: state.value || "",
-      email: email.value || "",
+      await auth.signInWithEmailAndPassword(email, password);
+      alert("Login successful!");
+      location.href="index.html";
+      return;
+    }
+
+    /* REGISTER */
+    const name = document.getElementById("nameInput").value.trim();
+    const phone = document.getElementById("phoneInput").value.trim();
+    const state = document.getElementById("stateInput").value.trim();
+    const confirmPassword = confirmPasswordInput.value;
+
+    if(!name || !phone || !state){
+      alert("Please fill all fields");
+      return;
+    }
+
+    if(password !== confirmPassword){
+      alert("Passwords do not match");
+      return;
+    }
+
+    if(!document.getElementById("agreeCheck").checked){
+      alert("Accept terms first");
+      return;
+    }
+
+    const cred =
+      await auth.createUserWithEmailAndPassword(email, password);
+
+    await db.collection("users").doc(cred.user.uid).set({
+      title: document.getElementById("titleInput").value,
+      name,
+      phone,
+      state,
+      email,
       role: "buyer",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    });
 
-    await db.collection("users")
-      .doc(cred.user.uid)
-      .set(userData);
-
-    alert("Account created!");
+    alert("✅ Account created successfully!");
     location.href="index.html";
 
-  })
-  .catch(e=>alert(e.message));
+  }catch(e){
+    alert(e.message);
+  }
 
-}
-</script></body>
+};
+</script>
+
+</body>
 </html>
