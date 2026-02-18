@@ -1,308 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Genji Store — Marketplace</title>
+<title>Genji Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:'Inter',system-ui;
-  background:#f4f6f9;
-}
-
-/* HEADER */
-header{
-  background:#0f2027;
-  color:#fff;
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-header h2{margin:0;color:#ffb703}
-
-/* SEARCH */
-.search-box{
-  background:#fff;
-  margin:12px;
-  padding:12px;
-  border-radius:16px;
-  display:grid;
-  gap:8px;
-}
-
-.search-box input{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-}
-
-/* CATEGORY */
-.categories{
-  display:flex;
-  gap:10px;
-  padding:0 12px 8px;
-  overflow-x:auto;
-}
-
-.category{
-  padding:8px 14px;
-  background:#fff;
-  border-radius:18px;
-  font-size:13px;
-  font-weight:600;
-  white-space:nowrap;
-  box-shadow:0 4px 10px rgba(0,0,0,.1);
-  cursor:pointer;
-}
-
-.category.active{background:#ffb703}
-
-/* TRUST CARD */
-.trust-card{
-  background:#fff;
-  margin:12px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,.12);
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-/* PRODUCTS */
-.products{
-  padding:12px;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-
-.product{
-  background:#fff;
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,.12);
-  cursor:pointer;
-}
-
-.product img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-}
-
+body{margin:0;font-family:system-ui;background:#f4f6f9}
+header{background:#0f2027;color:#fff;padding:12px}
+.products{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.product{background:#fff;border-radius:14px;overflow:hidden;cursor:pointer}
+.product img{width:100%;aspect-ratio:1/1;object-fit:cover}
 .product-body{padding:8px}
-
-.price{
-  font-weight:700;
-  color:#c1121f;
-}
-
-/* MODAL */
-#productModal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-
-#productModal .box{
-  background:#fff;
-  width:92%;
-  max-width:420px;
-  border-radius:18px;
-  overflow:hidden;
-}
-
-#productModal img{
-  width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
-}
-
-#productModal .content{padding:14px}
-
-button{
-  padding:10px 14px;
-  border:none;
-  border-radius:12px;
-  font-weight:700;
-  cursor:pointer;
-}
+.price{color:#c1121f;font-weight:700}
+#productModal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center}
+.box{background:#fff;width:92%;max-width:420px;border-radius:18px;overflow:hidden}
+.slider{overflow-x:auto;white-space:nowrap}
+.slider img{width:100%;display:inline-block}
+.content{padding:14px}
+button{width:100%;padding:12px;border:none;border-radius:14px;margin-top:8px;font-weight:700}
+.whatsapp{background:#25D366;color:#fff}
+.close{background:#eee}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>🛒 Genji Store</h2>
-  <button onclick="logout()">Logout</button>
+<h2>🛒 Genji Store</h2>
 </header>
-
-<!-- TRUST SELL CARD -->
-<div class="trust-card">
-
-  <img
-    src="https://i.ibb.co/KcZSwMtR/file-00000000914471f88063a28abf67d7bc.png"
-    style="
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid #ffb703;
-    ">
-
-  <div style="flex:1;">
-    <div style="font-weight:700;">Become a Seller</div>
-    <div style="font-size:13px;color:#555;">
-      Pay ₹49 once • Sell forever 🛒
-    </div>
-  </div>
-
-  <button onclick="location.href='sellerpay.html'"
-    style="background:#ff9900;color:#fff;">
-    Sell Now
-  </button>
-
-</div>
-
-<!-- SEARCH -->
-<div class="search-box">
-  <input id="searchName" placeholder="🔍 Search product" oninput="loadProducts()">
-  <input id="searchLocation" placeholder="📍 Location" oninput="loadProducts()">
-</div>
-
-<!-- CATEGORY FILTER -->
-<div class="categories">
-  <div class="category active" onclick="setCategory('')">All</div>
-  <div class="category" onclick="setCategory('Phones')">Phones</div>
-  <div class="category" onclick="setCategory('Clothes')">Clothes</div>
-  <div class="category" onclick="setCategory('Electronics')">Electronics</div>
-  <div class="category" onclick="setCategory('Furniture')">Furniture</div>
-  <div class="category" onclick="setCategory('Bike')">Bike</div>
-  <div class="category" onclick="setCategory('Car')">Car</div>
-</div>
 
 <div class="products" id="productList"></div>
 
-<!-- PRODUCT MODAL -->
 <div id="productModal">
-  <div class="box">
-    <img id="pmImage">
-    <div class="content">
-      <h3 id="pmName"></h3>
-      <div id="pmPrice" style="font-weight:800;color:#c1121f"></div>
-      <p id="pmLocation"></p>
-      <button onclick="chat()">💬 Chat on WhatsApp</button>
-      <button onclick="closeProduct()" style="background:#eee;margin-top:6px;">
-        Close
-      </button>
-    </div>
-  </div>
+<div class="box">
+
+<div class="slider" id="pmSlider"></div>
+
+<div class="content">
+<h3 id="pmName"></h3>
+<div id="pmPrice" class="price"></div>
+<p id="pmLocation"></p>
+
+<button class="whatsapp" id="pmWhatsApp">
+💬 Chat on WhatsApp
+</button>
+
+<button class="close" onclick="closeProduct()">Close</button>
+</div>
+
+</div>
 </div>
 
 <script>
 firebase.initializeApp({
-  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
-  authDomain:"genji-store.firebaseapp.com",
-  projectId:"genji-store"
+apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+authDomain:"genji-store.firebaseapp.com",
+projectId:"genji-store"
 });
 
 const auth=firebase.auth();
 const db=firebase.firestore();
 
-let selectedCategory="";
-let currentProduct=null;
-
-/* AUTH CHECK */
 auth.onAuthStateChanged(user=>{
-  if(!user) location.replace("login.html");
-  else loadProducts();
+if(!user){location.replace("login.html");return;}
+loadProducts();
 });
 
-/* CATEGORY */
-function setCategory(cat){
-  selectedCategory=cat;
-  document.querySelectorAll(".category")
-    .forEach(c=>c.classList.remove("active"));
-  event.target.classList.add("active");
-  loadProducts();
-}
-
-/* LOAD PRODUCTS */
 function loadProducts(){
-
-  const name=searchName.value.toLowerCase();
-  const loc=searchLocation.value.toLowerCase();
-
-  db.collection("products")
-    .where("status","==","available")
-    .onSnapshot(snap=>{
-
-      productList.innerHTML="";
-
-      snap.forEach(doc=>{
-
-        const p=doc.data();
-
-        if(selectedCategory && p.category!==selectedCategory) return;
-        if(name && !p.name.toLowerCase().includes(name)) return;
-        if(loc && !(`${p.village} ${p.district}`.toLowerCase().includes(loc))) return;
-
-        productList.innerHTML += `
-          <div class="product" onclick='openProduct(${JSON.stringify(p)})'>
-            <img src="${p.image}">
-            <div class="product-body">
-              <div>${p.name}</div>
-              <div class="price">₹${p.price}</div>
-            </div>
-          </div>`;
-      });
-
-    });
+db.collection("products")
+.where("status","==","available")
+.onSnapshot(snap=>{
+productList.innerHTML="";
+snap.forEach(doc=>{
+const p=doc.data();
+productList.innerHTML+=`
+<div class="product" onclick='openProduct(${JSON.stringify(p)})'>
+<img src="${p.images?.[0] || ''}">
+<div class="product-body">
+<h4>${p.name}</h4>
+<div class="price">₹${p.price}</div>
+</div>
+</div>`;
+});
+});
 }
 
-/* OPEN PRODUCT */
 function openProduct(p){
-  currentProduct=p;
-  pmImage.src=p.image;
-  pmName.innerText=p.name;
-  pmPrice.innerText="₹"+p.price;
-  pmLocation.innerText=`📍 ${p.village}, ${p.district}, ${p.state}`;
-  productModal.style.display="flex";
+
+pmName.innerText=p.name;
+pmPrice.innerText="₹"+p.price;
+pmLocation.innerText=`📍 ${p.village}, ${p.district}, ${p.state}`;
+
+pmSlider.innerHTML="";
+(p.images || []).forEach(url=>{
+pmSlider.innerHTML+=`<img src="${url}">`;
+});
+
+pmWhatsApp.onclick=()=>openWhatsApp(p.contact,p.name);
+
+productModal.style.display="flex";
 }
 
 function closeProduct(){
-  productModal.style.display="none";
+productModal.style.display="none";
 }
 
-/* WHATSAPP CHAT */
-function chat(){
-  const msg=encodeURIComponent(
-    `Hi, I am interested in your ${currentProduct.name}.`
-  );
-  window.open(`https://wa.me/91${currentProduct.contact}?text=${msg}`);
-}
-
-/* LOGOUT */
-function logout(){
-  auth.signOut().then(()=>location.replace("login.html"));
+function openWhatsApp(num,name){
+const msg=encodeURIComponent(`Hi, I am interested in your ${name}.`);
+window.open(`https://wa.me/91${num}?text=${msg}`,"_blank");
 }
 </script>
 
