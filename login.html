@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Login – Genji Store</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><style>
 body{
   margin:0;
   min-height:100vh;
@@ -83,112 +75,43 @@ button{
   max-width:420px;
   border-radius:16px;
 }
-</style>
-</head>
-
-<body>
-
-<div class="card">
-
-<h1 id="title">Login</h1>
-
-<!-- REGISTER FIELDS -->
-<div id="registerFields" style="display:none">
-
-  <select id="titleInput">
+</style></head><body><div class="card"><h1 id="title">Login</h1><!-- REGISTER FIELDS --><div id="registerFields" style="display:none">  <select id="titleInput">
     <option>Mr</option>
     <option>Ms</option>
     <option>Mrs</option>
-  </select>
-
-  <input id="name" placeholder="Full Name">
+  </select>  <input id="name" placeholder="Full Name">
   <input id="phone" placeholder="Phone Number">
-  <input id="state" placeholder="State">
-
-</div>
-
-<!-- COMMON -->
-<input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-
-<input id="confirmPassword"
-       type="password"
-       placeholder="Confirm Password"
-       style="display:none">
+  <input id="state" placeholder="State"></div><!-- COMMON --><input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password"><input id="confirmPassword"
+type="password"
+placeholder="Confirm Password"
+style="display:none">
 
 <label style="font-size:13px;">
   <input type="checkbox" onclick="togglePassword()"> Show Password
-</label>
-
-<!-- FORGOT PASSWORD -->
-<p id="forgotPassword"
+</label><p id="forgotPassword"
    style="text-align:right;font-size:13px;color:#ff9900;cursor:pointer;">
    Forgot password?
-</p>
-
-<!-- TERMS -->
-<div class="terms" id="termsBox" style="display:none">
+</p><div class="terms" id="termsBox" style="display:none">
   <input type="checkbox" id="agree">
   <span>I agree to the <a onclick="openTerms()" style="cursor:pointer">Terms</a></span>
-</div>
-
-<button class="primary" id="actionBtn"
-        onclick="submitForm()">Login</button>
+</div><button class="primary" id="actionBtn"
+onclick="submitForm()">Login</button>
 
 <div class="toggle" onclick="toggleMode()">
   Create Account
-</div>
-
-</div>
-
-<!-- TERMS MODAL -->
-<div class="modal" id="termsModal">
+</div></div><!-- TERMS MODAL --><div class="modal" id="termsModal">
   <div class="modal-box">
     <h3>Terms & Conditions</h3>
-
     <p style="font-size:14px;line-height:1.6">
-
-      This platform connects buyers and independent sellers.
-
-      <br><br>
-
-      • Genji Store does NOT handle payments between buyers and sellers.
-      <br>
-      • Buyers must verify product details before purchasing.
-      <br>
-      • All transactions occur directly between buyer and seller.
-
-      <br><br>
-
-      • Sellers are fully responsible for their products, pricing, and delivery.
-      <br>
-      • Genji Store is not liable for fraud, disputes, damages, or losses.
-
-      <br><br>
-
-      • Seller access requires a one-time fee of ₹49.
-      <br>
-      • The seller fee is non-refundable.
-      <br>
-      • Seller accounts are granted after verification and approval.
-
-      <br><br>
-
-      • Misuse, spam, illegal activity, or fraud will result in account termination.
-      <br>
-      • Genji Store reserves the right to suspend any account.
-
-      <br><br>
-
+      This platform connects buyers and independent sellers.<br><br>
+      Seller access requires a one-time fee of ₹49.<br>
+      The seller fee is non-refundable.<br><br>
       By creating an account, you agree to these terms.
-
     </p>
-
     <button onclick="closeTerms()">Close</button>
   </div>
-</div>
-
-<script>
+</div><script>
 firebase.initializeApp({
   apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
   authDomain:"genji-store.firebaseapp.com",
@@ -202,23 +125,14 @@ let registerMode=false;
 
 /* SWITCH MODE */
 function toggleMode(){
-
   registerMode=!registerMode;
 
-  registerFields.style.display =
-    registerMode ? "block" : "none";
+  registerFields.style.display = registerMode ? "block" : "none";
+  confirmPassword.style.display = registerMode ? "block" : "none";
+  termsBox.style.display = registerMode ? "flex" : "none";
 
-  confirmPassword.style.display =
-    registerMode ? "block" : "none";
-
-  termsBox.style.display =
-    registerMode ? "flex" : "none";
-
-  title.innerText =
-    registerMode ? "Create Account" : "Login";
-
-  actionBtn.innerText =
-    registerMode ? "Register" : "Login";
+  title.innerText = registerMode ? "Create Account" : "Login";
+  actionBtn.innerText = registerMode ? "Register" : "Login";
 
   document.querySelector(".toggle").innerText =
     registerMode ? "Back to Login" : "Create Account";
@@ -226,8 +140,7 @@ function toggleMode(){
 
 /* SHOW PASSWORD */
 function togglePassword(){
-  const type =
-    password.type==="password" ? "text" : "password";
+  const type = password.type==="password" ? "text" : "password";
   password.type = type;
   confirmPassword.type = type;
 }
@@ -238,10 +151,7 @@ function closeTerms(){termsModal.style.display="none";}
 
 /* FORGOT PASSWORD */
 forgotPassword.onclick = () => {
-  if(!email.value){
-    alert("Enter your email first");
-    return;
-  }
+  if(!email.value){ alert("Enter your email first"); return; }
   auth.sendPasswordResetEmail(email.value)
     .then(()=>alert("Password reset email sent"));
 };
@@ -252,43 +162,38 @@ function submitForm(){
   if(!registerMode){
 
     // LOGIN
-    auth.signInWithEmailAndPassword(
-      email.value, password.value
-    )
-    .then(()=>location.href="index.html")
-    .catch(e=>alert(e.message));
-
+    auth.signInWithEmailAndPassword(email.value, password.value)
+      .then(()=>location.href="index.html")
+      .catch(e=>alert(e.message));
     return;
   }
 
   // REGISTER VALIDATION
-  if(!agree.checked){
-    alert("Accept terms first");
-    return;
-  }
-
+  if(!agree.checked){ alert("Accept terms first"); return; }
   if(password.value !== confirmPassword.value){
-    alert("Passwords do not match");
-    return;
+    alert("Passwords do not match"); return;
   }
 
-  auth.createUserWithEmailAndPassword(
-    email.value, password.value
-  )
+  if(!name.value || !phone.value || !state.value){
+    alert("Please fill all fields"); return;
+  }
+
+  auth.createUserWithEmailAndPassword(email.value, password.value)
   .then(async cred=>{
+
+    const userData = {
+      title: titleInput.value || "",
+      name: name.value || "",
+      phone: phone.value || "",
+      state: state.value || "",
+      email: email.value || "",
+      role: "buyer",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
     await db.collection("users")
       .doc(cred.user.uid)
-      .set({
-        title: titleInput.value,
-        name: name.value,
-        phone: phone.value,
-        state: state.value,
-        email: email.value,
-        role: "buyer",
-        createdAt:
-          firebase.firestore.FieldValue.serverTimestamp()
-      });
+      .set(userData);
 
     alert("Account created!");
     location.href="index.html";
@@ -297,7 +202,5 @@ function submitForm(){
   .catch(e=>alert(e.message));
 
 }
-</script>
-
-</body>
+</script></body>
 </html>
