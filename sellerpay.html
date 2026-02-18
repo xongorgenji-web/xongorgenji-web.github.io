@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Become a Seller - Genji Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.card{
+  background:#fff;
+  padding:26px;
+  border-radius:20px;
+  max-width:380px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+.price{
+  font-size:34px;
+  font-weight:800;
+  color:#ff9900;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.pay{background:#ff9900;color:#fff}
+.whatsapp{background:#25D366;color:#fff}
+.unlock{background:#0f2027;color:#fff}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  text-align:center;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h1>Become a Seller</h1>
+
+  <div class="price">FREE</div>
+  <p>Early access • Sell your products 🛒</p>
+
+  <!-- 💳 OPTIONAL PAYMENT -->
+  <button class="pay" onclick="payUPI()">
+    💳 Pay via UPI (Optional)
+  </button>
+
+  <!-- 💬 CONTACT GENJI -->
+  <button class="whatsapp" onclick="contactMe()">
+    💬 Contact Genji
+  </button>
+
+  <hr>
+
+  <h3>Enter Seller Code</h3>
+
+  <input id="code" placeholder="Enter code">
+
+  <button class="unlock" onclick="unlockSeller()">
+    🔓 Unlock Seller Mode
+  </button>
+
+</div>
+
+<script>
+
+/* 🔥 FIREBASE CONFIG */
+firebase.initializeApp({
+  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+  authDomain:"genji-store.firebaseapp.com",
+  projectId:"genji-store"
+});
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* 🔐 REQUIRE LOGIN */
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    alert("Please login first");
+    location.href="login.html";
+  }
+});
+
+/* 💳 SAFE UPI BUTTON */
+function payUPI(){
+
+  const link =
+  "https://pay.google.com/gp/p/ui/pay?pa=genjikkongor-2@okhdfcbank&pn=Genji&am=49&cu=INR";
+
+  window.open(link, "_blank");
+}
+
+/* 💬 WORKING WHATSAPP CONTACT */
+function contactMe(){
+
+  const phone = "918731048644";
+
+  const msg = encodeURIComponent(
+    "Hi Genji, I want to become a seller on Genji Store."
+  );
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" + msg,
+    "_blank"
+  );
+}
+
+/* 🔑 GLOBAL SELLER CODE */
+const SECRET_CODE = "GENJI-SELLER";
+
+/* 🔓 UNLOCK SELLER */
+async function unlockSeller(){
+
+  const user = auth.currentUser;
+
+  const inputCode =
+    document.getElementById("code")
+      .value.trim().toUpperCase();
+
+  if(!inputCode){
+    alert("Enter code");
+    return;
+  }
+
+  if(inputCode !== SECRET_CODE){
+    alert("Invalid code");
+    return;
+  }
+
+  try {
+
+    await db.collection("users")
+      .doc(user.uid)
+      .update({
+        role: "seller",
+        sellerApproved: true,
+        sellerActivatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    alert("✅ Seller mode activated!");
+
+    location.href = "seller.html";
+
+  } catch(err){
+    alert("Error: " + err.message);
+  }
+
+}
+
+</script>
+
+</body>
+</html>
