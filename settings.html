@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GenjiStore Settings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:system-ui;
+  margin:0;
+  background:#f4f6f9;
+}
+
+header{
+  background:#000;
+  color:#fff;
+  padding:14px;
+  font-weight:800;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.section{
+  background:#fff;
+  margin:12px;
+  padding:14px;
+  border-radius:14px;
+}
+
+.item{
+  padding:14px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.item:last-child{border:none}
+
+.toggle{
+  width:40px;height:22px;background:#ccc;
+  border-radius:20px;position:relative;
+}
+
+.toggle::after{
+  content:"";
+  width:18px;height:18px;
+  background:#fff;border-radius:50%;
+  position:absolute;top:2px;left:2px;
+  transition:.2s;
+}
+
+.toggle.on{background:#4caf50}
+.toggle.on::after{left:20px}
+
+.badge{
+  background:#9c27b0;
+  color:#fff;
+  padding:4px 8px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  ⚙️ Settings
+  <button onclick="location.href='index.html'">← Back</button>
+</header>
+
+<!-- ACCOUNT -->
+<div class="section">
+  <div class="item" onclick="editProfile()">👤 Profile</div>
+  <div class="item" onclick="editAddress()">📍 Address</div>
+  <div class="item" onclick="editPhone()">📞 Phone Number</div>
+</div>
+
+<!-- PREFERENCES -->
+<div class="section">
+  <div class="item" onclick="toggleNotif()">
+    🔔 Notifications
+    <div id="notifToggle" class="toggle"></div>
+  </div>
+
+  <div class="item">🔒 Privacy</div>
+
+  <div class="item" onclick="toggleDark()">
+    🌙 Dark Mode
+    <div id="darkToggle" class="toggle"></div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div class="section">
+  <div class="item" onclick="showOrders()">📦 Orders</div>
+  <div class="item" onclick="showPayments()">💳 Payments</div>
+  <div class="item">⭐ Ratings & Reviews</div>
+</div>
+
+<!-- SELLER -->
+<div class="section">
+  <div class="item" onclick="becomeSeller()">
+    🏪 Become a Seller
+    <span class="badge">Start Selling</span>
+  </div>
+</div>
+
+<!-- SUPPORT -->
+<div class="section">
+  <div class="item" onclick="help()">❓ Help & Support</div>
+  <div class="item">📄 Terms & Conditions</div>
+  <div class="item" onclick="logout()">🚪 Logout</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCk8AopowtdPEZeYXsnEiT1o85kngAgG0Y",
+  authDomain:"genji-store.firebaseapp.com"
+});
+
+/* PROFILE SETTINGS */
+
+function editProfile(){
+  const name = prompt("Enter your name:",
+    localStorage.getItem("name") || "");
+  if(name) localStorage.setItem("name", name);
+}
+
+function editAddress(){
+  const addr = prompt("Enter your address:",
+    localStorage.getItem("address") || "");
+  if(addr) localStorage.setItem("address", addr);
+}
+
+function editPhone(){
+  const phone = prompt("Enter phone number:",
+    localStorage.getItem("phone") || "");
+  if(phone) localStorage.setItem("phone", phone);
+}
+
+/* TOGGLES */
+
+function toggleNotif(){
+  document.getElementById("notifToggle")
+    .classList.toggle("on");
+}
+
+function toggleDark(){
+  const t = document.getElementById("darkToggle");
+  t.classList.toggle("on");
+
+  if(document.body.style.background=="black"){
+    document.body.style.background="#f4f6f9";
+    document.body.style.color="#000";
+  }else{
+    document.body.style.background="black";
+    document.body.style.color="#fff";
+  }
+}
+
+/* SHOP FEATURES */
+
+function showOrders(){
+  alert("Orders feature coming soon 👑");
+}
+
+function showPayments(){
+  alert("Payments feature coming soon 💳");
+}
+
+/* SELLER — DIRECT OPEN */
+
+function becomeSeller(){
+  location.href = "seller.html";
+}
+
+/* SUPPORT */
+
+function help(){
+  alert("Contact support: genjistore@email.com");
+}
+
+/* LOGOUT */
+
+function logout(){
+  firebase.auth().signOut()
+    .then(()=>location.replace("login.html"));
+}
+</script>
+
+</body>
+</html>
