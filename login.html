@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Login – Genji Store</title>
+<title>GenjiStore — Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -20,6 +19,7 @@ body{
   justify-content:center;
   align-items:center;
 }
+
 .card{
   width:100%;
   max-width:420px;
@@ -28,14 +28,37 @@ body{
   padding:24px;
   box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
-h1{text-align:center;margin-top:0}
-input,select{
+
+.tagline{
+  text-align:center;
+  color:#666;
+  margin-bottom:12px;
+  font-weight:600;
+}
+
+.input-group{
+  position:relative;
+  margin-top:10px;
+}
+
+input{
   width:100%;
   padding:14px;
-  margin-top:10px;
+  padding-right:44px; /* space for eye */
   border-radius:14px;
   border:1px solid #ddd;
 }
+
+.eye{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+  user-select:none;
+}
+
 button{
   width:100%;
   margin-top:14px;
@@ -44,34 +67,23 @@ button{
   border-radius:16px;
   font-weight:bold;
   cursor:pointer;
+  background:#9c27b0;
+  color:#fff;
 }
-.primary{background:#ff9900;color:#fff}
+
 .toggle{
   text-align:center;
   margin-top:12px;
-  color:#ff9900;
+  color:#9c27b0;
   font-weight:bold;
   cursor:pointer;
 }
+
 .terms{
   display:flex;
   gap:8px;
   margin-top:12px;
   font-size:13px;
-}
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.modal-box{
-  background:#fff;
-  padding:20px;
-  max-width:420px;
-  border-radius:16px;
 }
 </style>
 </head>
@@ -80,64 +92,40 @@ button{
 
 <div class="card">
 
-<h1 id="pageTitle">Login</h1>
+<h1 style="text-align:center">GenjiStore</h1>
+<div class="tagline">Genjistore ka iew khasi online</div>
 
 <!-- REGISTER FIELDS -->
 <div id="registerFields" style="display:none">
-
-  <select id="titleInput">
-    <option>Mr</option>
-    <option>Ms</option>
-    <option>Mrs</option>
-  </select>
-
   <input id="nameInput" placeholder="Full Name">
   <input id="phoneInput" placeholder="Phone Number">
   <input id="stateInput" placeholder="State">
-
 </div>
 
-<!-- COMMON -->
 <input id="emailInput" type="email" placeholder="Email">
-<input id="passwordInput" type="password" placeholder="Password">
 
-<input id="confirmPasswordInput"
-type="password"
-placeholder="Confirm Password"
-style="display:none">
+<!-- PASSWORD -->
+<div class="input-group">
+  <input id="passwordInput" type="password" placeholder="Password">
+  <span class="eye" onclick="togglePass('passwordInput')"></span>
+</div>
 
-<label style="font-size:13px;">
-  <input type="checkbox" id="showPass"> Show Password
-</label>
+<!-- CONFIRM PASSWORD -->
+<div class="input-group" id="confirmGroup" style="display:none">
+  <input id="confirmPasswordInput" type="password" placeholder="Confirm Password">
+  <span class="eye" onclick="togglePass('confirmPasswordInput')"></span>
+</div>
 
-<p id="forgotPassword"
-style="text-align:right;font-size:13px;color:#ff9900;cursor:pointer;">
-Forgot password?
-</p>
-
+<!-- TERMS -->
 <div class="terms" id="termsBox" style="display:none">
   <input type="checkbox" id="agreeCheck">
-  <span>I agree to the <a id="termsLink" style="cursor:pointer">Terms</a></span>
+  <span>I agree to the Terms & Conditions</span>
 </div>
 
-<button class="primary" id="actionBtn">Login</button>
+<button id="actionBtn">Login</button>
 
 <div class="toggle" id="toggleText">Create Account</div>
 
-</div>
-
-<!-- TERMS MODAL -->
-<div class="modal" id="termsModal">
-  <div class="modal-box">
-    <h3>Terms & Conditions</h3>
-    <p style="font-size:14px;line-height:1.6">
-      This platform connects buyers and independent sellers.<br><br>
-      Seller access requires a one-time fee of ₹49.<br>
-      The seller fee is non-refundable.<br><br>
-      By creating an account, you agree to these terms.
-    </p>
-    <button id="closeTerms">Close</button>
-  </div>
 </div>
 
 <script>
@@ -150,15 +138,7 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let registerMode = false;
-
-/* ELEMENTS */
-const pageTitle = document.getElementById("pageTitle");
-const registerFields = document.getElementById("registerFields");
-const confirmPasswordInput = document.getElementById("confirmPasswordInput");
-const termsBox = document.getElementById("termsBox");
-const toggleText = document.getElementById("toggleText");
-const actionBtn = document.getElementById("actionBtn");
+let registerMode=false;
 
 /* SWITCH MODE */
 toggleText.onclick = () => {
@@ -166,52 +146,24 @@ toggleText.onclick = () => {
   registerMode = !registerMode;
 
   registerFields.style.display = registerMode ? "block" : "none";
-  confirmPasswordInput.style.display = registerMode ? "block" : "none";
+  confirmGroup.style.display = registerMode ? "block" : "none";
   termsBox.style.display = registerMode ? "flex" : "none";
 
-  pageTitle.textContent = registerMode ? "Create Account" : "Login";
   actionBtn.textContent = registerMode ? "Register" : "Login";
   toggleText.textContent = registerMode ? "Back to Login" : "Create Account";
 };
 
-/* SHOW PASSWORD */
-document.getElementById("showPass").onchange = () => {
-
-  const pwd = document.getElementById("passwordInput");
-  const cpwd = confirmPasswordInput;
-
-  const type = pwd.type === "password" ? "text" : "password";
-  pwd.type = type;
-  cpwd.type = type;
-};
-
-/* TERMS MODAL */
-document.getElementById("termsLink").onclick =
-  () => document.getElementById("termsModal").style.display = "flex";
-
-document.getElementById("closeTerms").onclick =
-  () => document.getElementById("termsModal").style.display = "none";
-
-/* FORGOT PASSWORD */
-document.getElementById("forgotPassword").onclick = () => {
-
-  const email = document.getElementById("emailInput").value.trim();
-
-  if(!email){
-    alert("Enter your email first");
-    return;
-  }
-
-  auth.sendPasswordResetEmail(email)
-    .then(()=>alert("Password reset email sent"))
-    .catch(e=>alert(e.message));
-};
+/* PASSWORD TOGGLE */
+function togglePass(id){
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+}
 
 /* SUBMIT */
 actionBtn.onclick = async () => {
 
-  const email = document.getElementById("emailInput").value.trim();
-  const password = document.getElementById("passwordInput").value;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
   if(!email || !password){
     alert("Enter email and password");
@@ -220,19 +172,15 @@ actionBtn.onclick = async () => {
 
   try{
 
-    /* LOGIN */
     if(!registerMode){
-
       await auth.signInWithEmailAndPassword(email, password);
-      alert("Login successful!");
       location.href="index.html";
       return;
     }
 
-    /* REGISTER */
-    const name = document.getElementById("nameInput").value.trim();
-    const phone = document.getElementById("phoneInput").value.trim();
-    const state = document.getElementById("stateInput").value.trim();
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const state = stateInput.value.trim();
     const confirmPassword = confirmPasswordInput.value;
 
     if(!name || !phone || !state){
@@ -245,8 +193,8 @@ actionBtn.onclick = async () => {
       return;
     }
 
-    if(!document.getElementById("agreeCheck").checked){
-      alert("Accept terms first");
+    if(!agreeCheck.checked){
+      alert("Please accept the Terms & Conditions first");
       return;
     }
 
@@ -254,16 +202,12 @@ actionBtn.onclick = async () => {
       await auth.createUserWithEmailAndPassword(email, password);
 
     await db.collection("users").doc(cred.user.uid).set({
-      title: document.getElementById("titleInput").value,
-      name,
-      phone,
-      state,
-      email,
-      role: "buyer",
+      name, phone, state, email,
+      role:"buyer",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    alert("✅ Account created successfully!");
+    alert("Account created successfully ");
     location.href="index.html";
 
   }catch(e){
