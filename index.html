@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Genji Store — Marketplace</title>
+<title>GenjiStore — Marketplace</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -13,223 +13,151 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:'Inter',system-ui;
-  background:#f4f6f9;
-}
+body{margin:0;font-family:'Inter',sans-serif;background:#f4f6f9;padding-bottom:70px}
 
 /* HEADER */
-header{
-  background:#0f2027;
-  color:#fff;
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-header h2{margin:0;color:#ffb703}
+header{background:#000;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;color:#d4af37}
 
 /* SEARCH */
-.search-box{
-  background:#fff;
-  margin:12px;
-  padding:12px;
-  border-radius:16px;
-  display:grid;
-  gap:8px;
-}
+.search-box{background:#fff;margin:12px;padding:12px;border-radius:16px}
+.search-box input{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd}
 
-.search-box input{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-}
-
-/* CATEGORY */
-.categories{
-  display:flex;
-  gap:10px;
-  padding:0 12px 8px;
-  overflow-x:auto;
-}
-
-.category{
-  padding:8px 14px;
-  background:#fff;
-  border-radius:18px;
-  font-size:13px;
-  font-weight:600;
-  white-space:nowrap;
-  box-shadow:0 4px 10px rgba(0,0,0,.1);
-  cursor:pointer;
-}
-
-.category.active{background:#ffb703}
-
-/* TRUST CARD */
-.trust-card{
-  background:#fff;
-  margin:12px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,.12);
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
+/* CATEGORIES */
+.categories{display:flex;gap:10px;padding:0 12px 10px;overflow-x:auto}
+.category{padding:8px 14px;background:#fff;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.category.active{background:#9c27b0;color:#fff}
 
 /* PRODUCTS */
-.products{
-  padding:12px;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-
-.product{
-  background:#fff;
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,.12);
-  cursor:pointer;
-}
-
-.product img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-}
-
+.products{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.product{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.12);cursor:pointer}
+.product img{width:100%;aspect-ratio:1/1;object-fit:cover}
 .product-body{padding:8px}
-
-.price{
-  font-weight:700;
-  color:#c1121f;
-}
+.price{font-weight:700;color:#d4af37}
 
 /* MODAL */
-#productModal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:none;
-  justify-content:center;
-  align-items:flex-start;
-  overflow-y:auto;
-  padding:20px 0;
-}
+#productModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;overflow-y:auto;padding-bottom:80px;z-index:1000}
+.box{background:#fff;max-width:420px;margin:auto;border-radius:18px;overflow:hidden;position:relative}
 
-#productModal .box{
-  background:#fff;
-  width:92%;
-  max-width:420px;
-  border-radius:18px;
-  margin:auto;
-  overflow:hidden;
-}
+/* CLOSE BUTTON */
+.close-btn{position:absolute;top:10px;right:10px;background:#000;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;z-index:10}
 
 /* IMAGE SLIDER */
-#pmSlider{
-  overflow-x:auto;
-  white-space:nowrap;
-  scroll-snap-type:x mandatory;
-  background:#000;
-}
+.slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;background:#000}
+.slider img{width:100%;flex-shrink:0;scroll-snap-align:start;object-fit:contain}
 
-#pmSlider img{
-  width:100%;
-  height:auto;
-  max-height:80vh;
-  display:inline-block;
-  scroll-snap-align:start;
-  object-fit:contain;
-}
+.content{padding:14px}
 
-/* CONTENT */
-#productModal .content{padding:14px}
+/* TRUST */
+.trust{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;font-size:13px}
+.trust div{background:#f3e5f5;padding:6px 10px;border-radius:12px;font-weight:600}
 
-button{
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  font-weight:700;
-  cursor:pointer;
-}
+/* SIZE */
+.sizes{display:flex;gap:10px;flex-wrap:wrap}
+.size{padding:8px 14px;border:2px solid #ddd;border-radius:12px;font-weight:600;cursor:pointer}
+.size.active{border-color:#9c27b0;background:#f3e5f5}
+
+/* RATING */
+.rating-box{display:flex;gap:12px;align-items:center;margin:12px 0}
+.big-rating{background:#1b8f5a;color:#fff;padding:14px;font-size:20px;font-weight:800;border-radius:10px}
+
+/* POPUP BUY BUTTONS */
+.popup-buy{display:flex;gap:10px;margin-top:16px}
+.popup-buy button{flex:1;padding:14px;border:none;border-radius:14px;font-weight:700;font-size:15px;cursor:pointer}
+.cart-btn{background:#eee;color:#333}
+.buy-btn{background:#9c27b0;color:#fff}
+
+/* FLOATING BUY BAR */
+.buy-bar{position:fixed;bottom:60px;left:0;right:0;background:#fff;display:flex;border-top:1px solid #ddd}
+.buy-bar button{flex:1;padding:16px;font-size:16px;border:none;font-weight:700}
+.cart{background:#eee}
+.buy{background:#9c27b0;color:#fff}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;align-items:center;z-index:999}
+.nav-item{display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;cursor:pointer}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>🛒 Genji Store</h2>
+  <div class="logo">👑 GENJISTORE</div>
   <button onclick="logout()">Logout</button>
 </header>
 
-<!-- SELL CARD -->
-<div class="trust-card">
-
-  <img src="https://i.ibb.co/KcZSwMtR/file-00000000914471f88063a28abf67d7bc.png"
-       style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #ffb703;">
-
-  <div style="flex:1;">
-    <div style="font-weight:700;">Become a Seller</div>
-    <div style="font-size:13px;color:#555;">
-      Pay ₹49 once • Sell forever 🛒
-    </div>
-  </div>
-
-  <button onclick="location.href='sellerpay.html'"
-          style="background:#ff9900;color:#fff;">
-    Sell Now
-  </button>
-
-</div>
-
-<!-- SEARCH -->
 <div class="search-box">
-  <input id="searchName" placeholder="🔍 Search product" oninput="loadProducts()">
-  <input id="searchLocation" placeholder="📍 Location" oninput="loadProducts()">
+  <input id="searchName" placeholder="Search product" oninput="loadProducts()">
 </div>
 
-<!-- CATEGORY -->
 <div class="categories">
   <div class="category active" onclick="setCategory('')">All</div>
   <div class="category" onclick="setCategory('Phones')">Phones</div>
   <div class="category" onclick="setCategory('Clothes')">Clothes</div>
   <div class="category" onclick="setCategory('Electronics')">Electronics</div>
   <div class="category" onclick="setCategory('Furniture')">Furniture</div>
-  <div class="category" onclick="setCategory('Bike')">Bike</div>
-  <div class="category" onclick="setCategory('Car')">Car</div>
+  <div class="category" onclick="setCategory('Second Hand')">Second Hand</div>
+  <div class="category" onclick="setCategory('Shoes')">Shoes</div>
+  <div class="category" onclick="setCategory('Cosmetics')">Cosmetics</div>
 </div>
 
 <div class="products" id="productList"></div>
 
 <!-- PRODUCT MODAL -->
-<div id="productModal">
+<div id="productModal" ondblclick="closeProduct()">
   <div class="box">
 
-    <!-- SWIPE IMAGE VIEWER -->
-    <div id="pmSlider"></div>
+    <button class="close-btn" onclick="closeProduct()">✖</button>
+
+    <div id="pmSlider" class="slider"></div>
 
     <div class="content">
       <h3 id="pmName"></h3>
-      <div id="pmPrice" style="font-weight:800;color:#c1121f"></div>
+      <div id="pmPrice" class="price"></div>
       <p id="pmLocation"></p>
+      <div id="pmCondition"></div>
 
-      <button onclick="chat()" style="background:#25D366;color:#fff;width:100%;">
-        💬 Chat on WhatsApp
-      </button>
+      <div class="trust">
+        <div>🔄 7 Days Return</div>
+        <div>💰 COD</div>
+        <div>🏷️ Best Price</div>
+      </div>
 
-      <button onclick="closeProduct()"
-              style="background:#eee;margin-top:8px;width:100%;">
-        Close
-      </button>
+      <h4>Select Size</h4>
+      <div class="sizes">
+        <div class="size active">M</div>
+        <div class="size">L</div>
+        <div class="size">XL</div>
+      </div>
+
+      <h4>Customer Ratings</h4>
+      <div class="rating-box">
+        <div class="big-rating">4.1 ★</div>
+        <div>Very Good ⭐⭐⭐⭐</div>
+      </div>
+
+      <!-- INSIDE POPUP BUTTONS -->
+      <div class="popup-buy">
+        <button class="cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
+        <button class="buy-btn" onclick="chat()">⚡ Buy Now</button>
+      </div>
+
     </div>
-
   </div>
+</div>
+
+<!-- FLOATING BUY BAR -->
+<div class="buy-bar" id="buyBar" style="display:none;">
+  <button class="cart" onclick="addToCart()">🛒 Add to Cart</button>
+  <button class="buy" onclick="chat()">⚡ Buy Now</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item" onclick="location.href='index.html'">🏠 Home</div>
+  <div class="nav-item" onclick="location.href='cart.html'">🛒 Cart</div>
+  <div class="nav-item" onclick="location.href='seller.html'">🏪 Sell</div>
+  <div class="nav-item" onclick="location.href='settings.html'">👤 Account</div>
 </div>
 
 <script>
@@ -242,95 +170,89 @@ firebase.initializeApp({
 const auth=firebase.auth();
 const db=firebase.firestore();
 
-let selectedCategory="";
 let currentProduct=null;
+let selectedSize="M";
+let selectedCategory="";
 
-/* AUTH */
-auth.onAuthStateChanged(user=>{
-  if(!user) location.replace("login.html");
-  else loadProducts();
+/* SIZE SELECT */
+document.addEventListener("click",e=>{
+  if(e.target.classList.contains("size")){
+    document.querySelectorAll(".size").forEach(s=>s.classList.remove("active"));
+    e.target.classList.add("active");
+    selectedSize=e.target.innerText;
+  }
 });
-
-/* CATEGORY */
-function setCategory(cat){
-  selectedCategory=cat;
-  document.querySelectorAll(".category")
-    .forEach(c=>c.classList.remove("active"));
-  event.target.classList.add("active");
-  loadProducts();
-}
 
 /* LOAD PRODUCTS */
 function loadProducts(){
-
-  const name=searchName.value.toLowerCase();
-  const loc=searchLocation.value.toLowerCase();
-
   db.collection("products")
     .where("status","==","available")
     .onSnapshot(snap=>{
-
       productList.innerHTML="";
-
       snap.forEach(doc=>{
-
         const p=doc.data();
-
-        if(selectedCategory && p.category!==selectedCategory) return;
-        if(name && !p.name.toLowerCase().includes(name)) return;
-        if(loc && !(`${p.village} ${p.district}`.toLowerCase().includes(loc))) return;
-
-        const frontImage = p.images?.[0] || p.image;
-
-        productList.innerHTML += `
-          <div class="product" onclick='openProduct(${JSON.stringify(p)})'>
-            <img src="${frontImage}">
+        productList.innerHTML+=`
+          <div class="product" onclick='openProduct(${JSON.stringify({...p,id:doc.id})})'>
+            <img src="${p.image}">
             <div class="product-body">
               <div>${p.name}</div>
               <div class="price">₹${p.price}</div>
             </div>
           </div>`;
       });
-
     });
 }
 
 /* OPEN PRODUCT */
 function openProduct(p){
-
   currentProduct=p;
 
   pmName.innerText=p.name;
   pmPrice.innerText="₹"+p.price;
-  pmLocation.innerText=`📍 ${p.village}, ${p.district}, ${p.state}`;
+  pmLocation.innerText=`📍 ${p.village || ""}`;
+  pmCondition.innerText=p.condition==="Second Hand"?"♻️ Second Hand":"🆕 Brand New";
 
   pmSlider.innerHTML="";
-
-  const imgs = p.images || [p.image];
-
-  imgs.forEach(url=>{
-    pmSlider.innerHTML += `<img src="${url}">`;
+  (p.images||[p.image]).forEach(url=>{
+    pmSlider.innerHTML+=`<img src="${url}">`;
   });
 
-  productModal.style.display="flex";
+  productModal.style.display="block";
+  buyBar.style.display="flex";
 }
 
+/* CLOSE */
 function closeProduct(){
   productModal.style.display="none";
+  buyBar.style.display="none";
 }
 
-/* WHATSAPP CHAT */
+/* CART */
+function addToCart(){
+  const cart=JSON.parse(localStorage.getItem("cart")||"[]");
+  cart.push({...currentProduct,size:selectedSize});
+  localStorage.setItem("cart",JSON.stringify(cart));
+  alert("Added to cart 🛒");
+}
+
+/* BUY */
 function chat(){
-  const msg=encodeURIComponent(
-    `Hi, I am interested in your ${currentProduct.name}.`
-  );
-  window.open(`https://wa.me/91${currentProduct.contact}?text=${msg}`);
+  const msg=encodeURIComponent(`Hi, I want to buy ${currentProduct.name} — ₹${currentProduct.price}`);
+
+  if(currentProduct.contact)
+    window.open(`https://wa.me/91${currentProduct.contact}?text=${msg}`);
+  else if(currentProduct.instagram)
+    window.open(`https://instagram.com/${currentProduct.instagram}`);
+  else if(currentProduct.facebook)
+    window.open(currentProduct.facebook);
+  else alert("Seller contact not available");
 }
 
-/* LOGOUT */
 function logout(){
   auth.signOut().then(()=>location.replace("login.html"));
 }
+
+loadProducts();
 </script>
 
 </body>
