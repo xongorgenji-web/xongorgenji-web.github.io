@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Seller Dashboard - Genji Store</title>
+<title>GenjiStore â€” Seller Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Firebase -->
@@ -17,34 +17,21 @@ body{
   background:#f4f6f9;
 }
 
-/* HEADER */
 header{
-  background:#0f2027;
+  background:#000;
   color:#fff;
-  padding:12px;
+  padding:14px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-header button{
-  background:#ffb703;
-  border:none;
-  padding:8px 14px;
-  border-radius:12px;
-  font-weight:700;
-  margin-left:6px;
-  cursor:pointer;
-}
-
-/* CONTAINER */
 .container{
   padding:14px;
   max-width:900px;
   margin:auto;
 }
 
-/* CARD */
 .card{
   background:#fff;
   padding:16px;
@@ -61,27 +48,17 @@ input,select{
   border:1px solid #ddd;
 }
 
-.preview{
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  border-radius:14px;
-  display:none;
-  margin-top:8px;
-}
-
-/* BUTTON */
 .primary{
   width:100%;
   padding:14px;
   border:none;
   border-radius:14px;
-  background:linear-gradient(135deg,#ff9900,#ffb703);
+  background:#9c27b0;
+  color:#fff;
   font-weight:700;
   cursor:pointer;
 }
 
-/* PRODUCTS */
 .products{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
@@ -101,90 +78,84 @@ input,select{
   object-fit:cover;
 }
 
-.product-body{
-  padding:12px;
-}
+.product-body{padding:12px}
 
-.price{
-  color:#b12704;
-  font-weight:800;
-  font-size:18px;
-}
-
-.product button{
+.delete-btn{
   width:100%;
   padding:8px;
   border:none;
   border-radius:10px;
   margin-top:6px;
+  background:#dc3545;
+  color:#fff;
   font-weight:700;
   cursor:pointer;
 }
-
-.delete-btn{background:#dc3545;color:#fff}
 </style>
 </head>
 
 <body>
 
 <header>
-
-  <!-- PROFILE IMAGE -->
-  <div style="display:flex;align-items:center;gap:10px;">
-    
-    <img
-      src="https://i.ibb.co/KcZSwMtR/file-00000000914471f88063a28abf67d7bc.png"
-      style="
-        width:42px;
-        height:42px;
-        border-radius:50%;
-        object-fit:cover;
-        border:2px solid #ffb703;
-      ">
-
-    <h2 style="margin:0;">Seller Dashboard</h2>
-
-  </div>
-
-  <div>
-    <button onclick="location.href='index.html'">🛍️ View Store</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-
+  <h2>ðŸ‘‘ Seller Dashboard</h2>
+  <button onclick="logout()">Logout</button>
 </header>
 
 <div class="container">
 
   <!-- ADD PRODUCT -->
   <div class="card">
-    <h3>Add Product (1 Required + 2 Optional Images)</h3>
+    <h3>Add Product</h3>
 
     <input id="pname" placeholder="Product name">
     <input id="pprice" type="number" placeholder="Price">
 
+    <!-- â­ ALL CATEGORIES (OLD + NEW) -->
     <select id="pcategory">
       <option value="">Select Category</option>
+
+      <!-- OLD -->
       <option>Phones</option>
       <option>Clothes</option>
       <option>Electronics</option>
       <option>Furniture</option>
       <option>Bike</option>
       <option>Car</option>
+      <option>Second Hand</option>
+
+      <!-- NEW IMPORTANT -->
+      <option>Shoes</option>
+      <option>Cosmetics</option>
+      <option>Personal Care</option>
+      <option>Bags</option>
+      <option>Accessories</option>
+      <option>Kitchen</option>
+      <option>Sports</option>
+      <option>Baby</option>
+      <option>Books</option>
+      <option>Gaming</option>
+      <option>Pets</option>
+      <option>Others</option>
     </select>
 
-    <!-- IMAGE URLS -->
+    <!-- IMAGES -->
     <input id="img1" placeholder="Image URL 1 (Required)">
     <input id="img2" placeholder="Image URL 2 (Optional)">
     <input id="img3" placeholder="Image URL 3 (Optional)">
 
-    <img id="preview" class="preview">
+    <!-- CONTACT METHODS -->
+    <h4>Contact Method (Add at least one)</h4>
 
-    <input id="pcontact" placeholder="WhatsApp number">
+    <input id="pwhatsapp" placeholder="WhatsApp Number (e.g. 9876543210)">
+    <input id="pinstagram" placeholder="Instagram Username">
+    <input id="pfacebook" placeholder="Facebook Profile Link">
+
+    <!-- LOCATION -->
     <input id="pvillage" placeholder="Village">
     <input id="pdistrict" placeholder="District">
     <input id="pstate" placeholder="State">
 
-    <button class="primary" onclick="submitProduct()">Save Product</button>
+    <button class="primary" onclick="submitProduct()">Post Product</button>
   </div>
 
   <!-- MY PRODUCTS -->
@@ -205,7 +176,7 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let uid = null;
+let uid=null;
 
 /* AUTH CHECK */
 auth.onAuthStateChanged(user=>{
@@ -213,25 +184,26 @@ auth.onAuthStateChanged(user=>{
     location.replace("login.html");
     return;
   }
-  uid = user.uid;
+  uid=user.uid;
   loadProducts();
 });
 
-/* PREVIEW FIRST IMAGE */
-function updatePreview(){
-  const url = img1.value.trim();
-  if(url.startsWith("http")){
-    preview.src = url;
-    preview.style.display = "block";
-  }else{
-    preview.style.display = "none";
-  }
-}
-
-img1.oninput = updatePreview;
-
-/* SAVE PRODUCT */
+/* POST PRODUCT */
 function submitProduct(){
+
+  const whatsapp = pwhatsapp.value.trim();
+  const instagram = pinstagram.value.trim();
+  const facebook = pfacebook.value.trim();
+
+  if(!whatsapp && !instagram && !facebook){
+    alert("Please add at least ONE contact method");
+    return;
+  }
+
+  if(!img1.value.trim().startsWith("http")){
+    alert("Image URL 1 is required");
+    return;
+  }
 
   const urls = [
     img1.value.trim(),
@@ -239,27 +211,28 @@ function submitProduct(){
     img3.value.trim()
   ].filter(u => u.startsWith("http"));
 
-  if(!img1.value.trim().startsWith("http")){
-    alert("Image URL 1 is required");
-    return;
-  }
-
   db.collection("products").add({
     name: pname.value,
     price: Number(pprice.value),
     category: pcategory.value,
 
-    image: urls[0],  // cover photo
-    images: urls,    // all photos
+    image: urls[0],
+    images: urls,
 
-    contact: pcontact.value,
+    contact: whatsapp || null,
+    instagram: instagram || null,
+    facebook: facebook || null,
+
     village: pvillage.value,
     district: pdistrict.value,
     state: pstate.value,
+
     sellerId: uid,
     status: "available"
-  }).then(()=>location.reload());
-
+  }).then(()=>{
+    alert("Product posted successfully ðŸ‘‘");
+    location.reload();
+  });
 }
 
 /* LOAD PRODUCTS */
@@ -267,8 +240,7 @@ function loadProducts(){
   db.collection("products")
     .where("sellerId","==",uid)
     .onSnapshot(snap=>{
-      myProducts.innerHTML = "";
-
+      myProducts.innerHTML="";
       snap.forEach(doc=>{
         const p = doc.data();
 
@@ -277,7 +249,7 @@ function loadProducts(){
             <img src="${p.image}">
             <div class="product-body">
               <h4>${p.name}</h4>
-              <div class="price">₹${p.price}</div>
+              <div>â‚¹${p.price}</div>
               <button class="delete-btn"
                 onclick="deleteProduct('${doc.id}')">
                 Delete
@@ -288,7 +260,7 @@ function loadProducts(){
     });
 }
 
-/* DELETE */
+/* DELETE PRODUCT */
 function deleteProduct(id){
   db.collection("products").doc(id).delete();
 }
