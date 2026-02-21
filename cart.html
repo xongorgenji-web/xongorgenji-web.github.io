@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GenjiStore — Cart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#f4f6f9;
+  padding-bottom:80px;
+}
+
+header{
+  background:#000;
+  color:#fff;
+  padding:14px;
+  font-weight:800;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.close-btn{
+  background:#c1121f;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.sell-btn{
+  background:#9c27b0;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.container{
+  padding:14px;
+  max-width:800px;
+  margin:auto;
+}
+
+.cart-item{
+  background:#fff;
+  border-radius:14px;
+  padding:10px;
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
+}
+
+.cart-item img{
+  width:80px;
+  height:80px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.details{flex:1}
+
+.price{font-weight:700;color:#9c27b0}
+
+.qty{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:6px;
+}
+
+.qty button{
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  background:#eee;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.buy-btn{
+  background:#9c27b0;
+  color:#fff;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.remove-btn{
+  background:#c1121f;
+  color:#fff;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.total{
+  background:#fff;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
+  margin-top:14px;
+  font-size:18px;
+  font-weight:800;
+  text-align:right;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="left">
+    <button class="close-btn" onclick="closeCart()">❌</button>
+    🛒 My Cart
+  </div>
+
+  <button class="sell-btn" onclick="location.href='seller.html'">
+    🏪 Sell
+  </button>
+
+</header>
+
+<div class="container">
+
+  <div id="cartList"></div>
+  <div id="totalBox" class="total"></div>
+
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+/* CLOSE CART */
+function closeCart(){
+  if (window.history.length > 1){
+    window.history.back(); // go back
+  } else {
+    location.href = "index.html"; // fallback
+  }
+}
+
+function renderCart(){
+
+  const list = document.getElementById("cartList");
+  const totalBox = document.getElementById("totalBox");
+
+  list.innerHTML = "";
+
+  if(cart.length === 0){
+    list.innerHTML = "<p>Your cart is empty 🥲</p>";
+    totalBox.innerHTML = "";
+    return;
+  }
+
+  let total = 0;
+
+  cart.forEach((item, i)=>{
+
+    const qty = item.qty || 1;
+    total += item.price * qty;
+
+    list.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.image}">
+        <div class="details">
+
+          <div>${item.name}</div>
+          <div>Size: ${item.size || "-"}</div>
+          <div class="price">₹${item.price}</div>
+
+          <div class="qty">
+            <button onclick="changeQty(${i}, -1)">➖</button>
+            ${qty}
+            <button onclick="changeQty(${i}, 1)">➕</button>
+          </div>
+
+          <div class="actions">
+
+            <button class="buy-btn" onclick="buyItem(${i})">
+              ⚡ Buy
+            </button>
+
+            <button class="remove-btn" onclick="removeItem(${i})">
+              ❌ Remove
+            </button>
+
+          </div>
+
+        </div>
+      </div>`;
+  });
+
+  totalBox.innerHTML = `Total: ₹${total}`;
+}
+
+function changeQty(i, diff){
+  cart[i].qty = (cart[i].qty || 1) + diff;
+  if(cart[i].qty < 1) cart[i].qty = 1;
+  saveCart();
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  saveCart();
+}
+
+function saveCart(){
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+
+/* BUY ITEM — Opens WhatsApp */
+function buyItem(i){
+
+  const item = cart[i];
+
+  const msg = encodeURIComponent(
+    `Hi, I want to buy:\n\n🛒 ${item.name}\n💰 ₹${item.price}\n📏 Size: ${item.size}`
+  );
+
+  window.open(`https://wa.me/?text=${msg}`);
+}
+
+renderCart();
+</script>
+
+</body>
+</html>
