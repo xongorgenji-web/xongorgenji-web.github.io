@@ -15,65 +15,37 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:#f4f6f9;padding-bottom:70px}
 
-/* HEADER */
 header{background:#000;color:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center}
 .logo{font-weight:800;color:#d4af37}
 
-/* SEARCH */
 .search-box{background:#fff;margin:12px;padding:12px;border-radius:16px}
 .search-box input{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd}
 
-/* CATEGORIES */
 .categories{display:flex;gap:10px;padding:0 12px 10px;overflow-x:auto}
 .category{padding:8px 14px;background:#fff;border-radius:18px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .category.active{background:#9c27b0;color:#fff}
 
-/* PRODUCTS */
 .products{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .product{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.12);cursor:pointer}
 .product img{width:100%;aspect-ratio:1/1;object-fit:cover}
 .product-body{padding:8px}
 .price{font-weight:700;color:#d4af37}
 
-/* MODAL */
 #productModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;overflow-y:auto;padding-bottom:80px;z-index:1000}
 .box{background:#fff;max-width:420px;margin:auto;border-radius:18px;overflow:hidden;position:relative}
 
-/* CLOSE BUTTON */
 .close-btn{position:absolute;top:10px;right:10px;background:#000;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;z-index:10}
 
-/* IMAGE SLIDER */
 .slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;background:#000}
 .slider img{width:100%;flex-shrink:0;scroll-snap-align:start;object-fit:contain}
 
 .content{padding:14px}
 
-/* TRUST */
-.trust{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;font-size:13px}
-.trust div{background:#f3e5f5;padding:6px 10px;border-radius:12px;font-weight:600}
-
-/* SIZE */
-.sizes{display:flex;gap:10px;flex-wrap:wrap}
-.size{padding:8px 14px;border:2px solid #ddd;border-radius:12px;font-weight:600;cursor:pointer}
-.size.active{border-color:#9c27b0;background:#f3e5f5}
-
-/* RATING */
-.rating-box{display:flex;gap:12px;align-items:center;margin:12px 0}
-.big-rating{background:#1b8f5a;color:#fff;padding:14px;font-size:20px;font-weight:800;border-radius:10px}
-
-/* POPUP BUY BUTTONS */
-.popup-buy{display:flex;gap:10px;margin-top:16px}
-.popup-buy button{flex:1;padding:14px;border:none;border-radius:14px;font-weight:700;font-size:15px;cursor:pointer}
-.cart-btn{background:#eee;color:#333}
-.buy-btn{background:#9c27b0;color:#fff}
-
-/* FLOATING BUY BAR */
 .buy-bar{position:fixed;bottom:60px;left:0;right:0;background:#fff;display:flex;border-top:1px solid #ddd}
 .buy-bar button{flex:1;padding:16px;font-size:16px;border:none;font-weight:700}
 .cart{background:#eee}
 .buy{background:#9c27b0;color:#fff}
 
-/* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;align-items:center;z-index:999}
 .nav-item{display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;cursor:pointer}
 </style>
@@ -87,72 +59,41 @@ header{background:#000;color:#fff;padding:14px;display:flex;justify-content:spac
 </header>
 
 <div class="search-box">
-  <input id="searchName" placeholder="Search product" oninput="loadProducts()">
+  <input id="searchName" placeholder="Search product">
 </div>
 
-<div class="categories">
-  <div class="category active" onclick="setCategory('')">All</div>
-  <div class="category" onclick="setCategory('Phones')">Phones</div>
-  <div class="category" onclick="setCategory('Clothes')">Clothes</div>
-  <div class="category" onclick="setCategory('Electronics')">Electronics</div>
-  <div class="category" onclick="setCategory('Furniture')">Furniture</div>
-  <div class="category" onclick="setCategory('Second Hand')">Second Hand</div>
-  <div class="category" onclick="setCategory('Shoes')">Shoes</div>
-  <div class="category" onclick="setCategory('Cosmetics')">Cosmetics</div>
+<div class="categories" id="catBox">
+  <div class="category active" data-cat="">All</div>
+  <div class="category" data-cat="Phones">Phones</div>
+  <div class="category" data-cat="Clothes">Clothes</div>
+  <div class="category" data-cat="Electronics">Electronics</div>
+  <div class="category" data-cat="Furniture">Furniture</div>
+  <div class="category" data-cat="Second Hand">Second Hand</div>
+  <div class="category" data-cat="Shoes">Shoes</div>
+  <div class="category" data-cat="Cosmetics">Cosmetics</div>
 </div>
 
 <div class="products" id="productList"></div>
 
-<!-- PRODUCT MODAL -->
-<div id="productModal" ondblclick="closeProduct()">
-  <div class="box">
-
+<!-- MODAL -->
+<div id="productModal" onclick="closeProduct()">
+  <div class="box" onclick="event.stopPropagation()">
     <button class="close-btn" onclick="closeProduct()">✖</button>
-
     <div id="pmSlider" class="slider"></div>
-
     <div class="content">
       <h3 id="pmName"></h3>
       <div id="pmPrice" class="price"></div>
       <p id="pmLocation"></p>
       <div id="pmCondition"></div>
-
-      <div class="trust">
-        <div>🔄 7 Days Return</div>
-        <div>💰 COD</div>
-        <div>🏷️ Best Price</div>
-      </div>
-
-      <h4>Select Size</h4>
-      <div class="sizes">
-        <div class="size active">M</div>
-        <div class="size">L</div>
-        <div class="size">XL</div>
-      </div>
-
-      <h4>Customer Ratings</h4>
-      <div class="rating-box">
-        <div class="big-rating">4.1 ★</div>
-        <div>Very Good ⭐⭐⭐⭐</div>
-      </div>
-
-      <!-- INSIDE POPUP BUTTONS -->
-      <div class="popup-buy">
-        <button class="cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
-        <button class="buy-btn" onclick="chat()">⚡ Buy Now</button>
-      </div>
-
     </div>
   </div>
 </div>
 
-<!-- FLOATING BUY BAR -->
 <div class="buy-bar" id="buyBar" style="display:none;">
   <button class="cart" onclick="addToCart()">🛒 Add to Cart</button>
   <button class="buy" onclick="chat()">⚡ Buy Now</button>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="nav-item" onclick="location.href='index.html'">🏠 Home</div>
   <div class="nav-item" onclick="location.href='cart.html'">🛒 Cart</div>
@@ -167,31 +108,48 @@ firebase.initializeApp({
   projectId:"genji-store"
 });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-let currentProduct=null;
-let selectedSize="M";
-let selectedCategory="";
+let selectedCategory = "";
+let currentProduct = null;
 
-/* SIZE SELECT */
-document.addEventListener("click",e=>{
-  if(e.target.classList.contains("size")){
-    document.querySelectorAll(".size").forEach(s=>s.classList.remove("active"));
-    e.target.classList.add("active");
-    selectedSize=e.target.innerText;
+/* CATEGORY CLICK */
+document.querySelectorAll(".category").forEach(cat=>{
+  cat.onclick = ()=>{
+    document.querySelectorAll(".category")
+      .forEach(c=>c.classList.remove("active"));
+
+    cat.classList.add("active");
+    selectedCategory = cat.dataset.cat;
+
+    loadProducts();
   }
 });
 
+/* SEARCH */
+searchName.oninput = loadProducts;
+
 /* LOAD PRODUCTS */
 function loadProducts(){
+
   db.collection("products")
     .where("status","==","available")
     .onSnapshot(snap=>{
-      productList.innerHTML="";
+
+      productList.innerHTML = "";
+      const search = searchName.value.toLowerCase();
+
       snap.forEach(doc=>{
-        const p=doc.data();
-        productList.innerHTML+=`
+        const p = doc.data();
+
+        // Category filter
+        if(selectedCategory && p.category !== selectedCategory) return;
+
+        // Search filter
+        if(search && !p.name.toLowerCase().includes(search)) return;
+
+        productList.innerHTML += `
           <div class="product" onclick='openProduct(${JSON.stringify({...p,id:doc.id})})'>
             <img src="${p.image}">
             <div class="product-body">
@@ -200,54 +158,53 @@ function loadProducts(){
             </div>
           </div>`;
       });
+
     });
 }
 
 /* OPEN PRODUCT */
 function openProduct(p){
-  currentProduct=p;
+  currentProduct = p;
 
-  pmName.innerText=p.name;
-  pmPrice.innerText="₹"+p.price;
-  pmLocation.innerText=`📍 ${p.village || ""}`;
-  pmCondition.innerText=p.condition==="Second Hand"?"♻️ Second Hand":"🆕 Brand New";
+  pmName.innerText = p.name;
+  pmPrice.innerText = "₹" + p.price;
+  pmLocation.innerText = "📍 " + (p.village || "");
+  pmCondition.innerText = p.condition === "Second Hand"
+    ? "♻️ Second Hand"
+    : "🆕 Brand New";
 
-  pmSlider.innerHTML="";
-  (p.images||[p.image]).forEach(url=>{
-    pmSlider.innerHTML+=`<img src="${url}">`;
+  pmSlider.innerHTML = "";
+  (p.images || [p.image]).forEach(url=>{
+    pmSlider.innerHTML += `<img src="${url}">`;
   });
 
-  productModal.style.display="block";
-  buyBar.style.display="flex";
+  productModal.style.display = "block";
+  buyBar.style.display = "flex";
 }
 
-/* CLOSE */
 function closeProduct(){
-  productModal.style.display="none";
-  buyBar.style.display="none";
+  productModal.style.display = "none";
+  buyBar.style.display = "none";
 }
 
 /* CART */
 function addToCart(){
-  const cart=JSON.parse(localStorage.getItem("cart")||"[]");
-  cart.push({...currentProduct,size:selectedSize});
-  localStorage.setItem("cart",JSON.stringify(cart));
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  cart.push(currentProduct);
+  localStorage.setItem("cart", JSON.stringify(cart));
   alert("Added to cart 🛒");
 }
 
 /* BUY */
 function chat(){
-  const msg=encodeURIComponent(`Hi, I want to buy ${currentProduct.name} — ₹${currentProduct.price}`);
+  const msg = encodeURIComponent(`Hi, I want to buy ${currentProduct.name} — ₹${currentProduct.price}`);
 
   if(currentProduct.contact)
     window.open(`https://wa.me/91${currentProduct.contact}?text=${msg}`);
-  else if(currentProduct.instagram)
-    window.open(`https://instagram.com/${currentProduct.instagram}`);
-  else if(currentProduct.facebook)
-    window.open(currentProduct.facebook);
   else alert("Seller contact not available");
 }
 
+/* LOGOUT */
 function logout(){
   auth.signOut().then(()=>location.replace("login.html"));
 }
